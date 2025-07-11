@@ -63,7 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes example
-  app.get("/api/admin/verify", authMiddleware, (req: any, res) => {
+  app.get("/api/admin/verify", authMiddleware, (req: any, res: any) => {
     res.json({
       message: "Token is valid",
       user: req.user

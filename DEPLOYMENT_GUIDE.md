@@ -153,19 +153,26 @@ const allowedOrigins = process.env.NODE_ENV === "production"
 
 ### **Common Issues:**
 
-1. **CORS Error**
+1. **TypeScript Error: No overload matches this call**
+   ```bash
+   # Error di src/routes.ts(66,32): error TS2769
+   # Solusi: Pastikan authMiddleware menggunakan void return type
+   # Dan gunakan (req: any, res: any) untuk handler
+   ```
+
+2. **CORS Error**
    - Pastikan FRONTEND_URL di Railway benar
    - Check allowedOrigins di backend
 
-2. **Database Connection**
+3. **Database Connection**
    - Pastikan DATABASE_URL format benar
    - Check firewall/network di Railway
 
-3. **Build Failed**
+4. **Build Failed**
    - Check Node.js version compatibility
    - Review build logs di Railway/Vercel
 
-4. **Environment Variables**
+5. **Environment Variables**
    - Pastikan semua required vars ada
    - Check case sensitive names
 
