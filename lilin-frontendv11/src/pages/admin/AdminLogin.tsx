@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock, Mail, User } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -31,7 +32,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

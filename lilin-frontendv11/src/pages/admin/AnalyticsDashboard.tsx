@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, TrendingUp, Users, Clock, MousePointer, Eye, Smartphone, Globe } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 interface GACredentials {
   propertyId: string;
@@ -70,7 +71,7 @@ export default function AnalyticsDashboard() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/analytics", {
+      const response = await fetch(`${API_BASE_URL}/api/analytics`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

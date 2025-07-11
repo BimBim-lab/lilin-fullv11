@@ -12,10 +12,15 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // CORS configuration
+const allowedOrigins = process.env.NODE_ENV === "production" 
+  ? [
+      "https://your-frontend-domain.vercel.app",
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+    ]
+  : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:5173"];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
-    ? ["https://your-frontend-domain.com"] 
-    : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003"],
+  origin: allowedOrigins,
   credentials: true
 }));
 

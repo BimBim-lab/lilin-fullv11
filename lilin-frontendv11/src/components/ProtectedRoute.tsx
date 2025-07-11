@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/config";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
       try {
         // Verify token with backend
-        const response = await fetch("http://localhost:5000/api/admin/verify", {
+        const response = await fetch(`${API_BASE_URL}/api/admin/verify`, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
