@@ -3,9 +3,73 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema, insertBlogPostSchema, insertContactInfoSchema } from "./schema";
 import { emailService } from "./emailService";
+import { authMiddleware, JWT_SECRET } from "./authMiddleware";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Hardcoded admin credentials (in production, store in database with hashed password)
+  const ADMIN_CREDENTIALS = {
+    email: 'admin@weiscandle.com',
+    password: await bcrypt.hash('admin123', 10) // Hash the password
+  };
+
+  // Admin Login endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ 
+          message: "Email and password are required" 
+        });
+      }
+
+      // Check credentials
+      const isEmailValid = email === ADMIN_CREDENTIALS.email;
+      const isPasswordValid = await bcrypt.compare(password, ADMIN_CREDENTIALS.password);
+
+      if (!isEmailValid || !isPasswordValid) {
+        return res.status(401).json({ 
+          message: "Invalid email or password" 
+        });
+      }
+
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          id: 'admin-1', 
+          email: email 
+        },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.json({
+        message: "Login successful",
+        token,
+        user: {
+          id: 'admin-1',
+          email: email
+        }
+      });
+
+    } catch (error) {
+      console.error('Admin login error:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Protected admin routes example
+  app.get("/api/admin/verify", authMiddleware, (req: any, res) => {
+    res.json({
+      message: "Token is valid",
+      user: req.user
+    });
+  });
+
   // Blog endpoints
   app.get("/api/blog", async (_req, res) => {
     try {

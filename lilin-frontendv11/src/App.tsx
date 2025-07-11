@@ -19,6 +19,8 @@ import ProductExportDashboard from "@/pages/admin/ProductExportDashboard";
 import BlogDashboard from "@/pages/admin/BlogDashboard";
 import ContactDashboard from "@/pages/admin/ContactDashboard";
 import AnalyticsDashboard from "@/pages/admin/AnalyticsDashboard";
+import AdminLogin from "@/pages/admin/AdminLogin";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 function Router() {
   return (
@@ -60,44 +62,61 @@ function Router() {
         </Layout>
       )} />
 
-      {/* Admin Routes */}
+      {/* Admin Login Route */}
+      <Route path="/admin/login" component={AdminLogin} />
+
+      {/* Protected Admin Routes */}
       <Route path="/admin" component={() => (
-        <DashboardLayout>
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Selamat Datang di Admin Dashboard</h2>
-            <p className="text-gray-600">Pilih menu di sidebar untuk mengelola konten website</p>
-          </div>
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Selamat Datang di Admin Dashboard</h2>
+              <p className="text-gray-600">Pilih menu di sidebar untuk mengelola konten website</p>
+            </div>
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/hero" component={() => (
-        <DashboardLayout>
-          <HeroDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <HeroDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/workshop" component={() => (
-        <DashboardLayout>
-          <WorkshopDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <WorkshopDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/productexport" component={() => (
-        <DashboardLayout>
-          <ProductExportDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <ProductExportDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/blog" component={() => (
-        <DashboardLayout>
-          <BlogDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <BlogDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/contact" component={() => (
-        <DashboardLayout>
-          <ContactDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <ContactDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
       <Route path="/admin/analytics" component={() => (
-        <DashboardLayout>
-          <AnalyticsDashboard />
-        </DashboardLayout>
+        <ProtectedRoute>
+          <DashboardLayout>
+            <AnalyticsDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
       )} />
 
       {/* 404 Route */}

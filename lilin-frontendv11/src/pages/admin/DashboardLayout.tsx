@@ -1,7 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
   Calendar, 
@@ -9,7 +8,6 @@ import {
   FileText, 
   MessageSquare, 
   LogOut,
-  Bell,
   User,
   TrendingUp
 } from "lucide-react";
@@ -19,7 +17,13 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
+    setLocation("/admin/login");
+  };
 
   const navigationItems = [
     { 
@@ -112,16 +116,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="relative hover:bg-gray-100">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                  3
-                </Badge>
-              </Button>
               <div className="w-8 h-8 bg-gradient-to-r from-rose-gold to-soft-pink rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
-              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={handleLogout}
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Keluar
               </Button>
