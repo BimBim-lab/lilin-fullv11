@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -8,14 +8,36 @@ export interface IStorage {
   getBlogPosts(): Promise<BlogPost[]>;
   getBlogPostBySlug(slug: string): Promise<BlogPost | undefined>;
   createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
+  updateBlogPost(id: number, post: InsertBlogPost): Promise<BlogPost | undefined>;
+  deleteBlogPost(id: number): Promise<boolean>;
   
   createContact(contact: InsertContact): Promise<Contact>;
+  
+  getContactInfo(): Promise<ContactInfo>;
+  updateContactInfo(data: InsertContactInfo): Promise<ContactInfo>;
+  
+  getHeroData(): Promise<HeroData>;
+  updateHeroData(data: Partial<InsertHeroData>): Promise<HeroData>;
+  
+  getWorkshopPackages(): Promise<WorkshopPackage[]>;
+  updateWorkshopPackages(packages: InsertWorkshopPackage[]): Promise<WorkshopPackage[]>;
+  
+  getWorkshopCurriculum(): Promise<WorkshopCurriculum[]>;
+  updateWorkshopCurriculum(curriculum: InsertWorkshopCurriculum[]): Promise<WorkshopCurriculum[]>;
+  
+  getProducts(): Promise<Product[]>;
+  updateProducts(products: InsertProduct[]): Promise<Product[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private blogPosts: Map<number, BlogPost>;
   private contacts: Map<number, Contact>;
+  private heroData: HeroData;
+  private contactInfo: ContactInfo;
+  private workshopPackages: WorkshopPackage[];
+  private workshopCurriculum: WorkshopCurriculum[];
+  private products: Product[];
   private currentUserId: number;
   private currentBlogPostId: number;
   private currentContactId: number;
@@ -27,6 +49,198 @@ export class MemStorage implements IStorage {
     this.currentUserId = 1;
     this.currentBlogPostId = 1;
     this.currentContactId = 1;
+    
+    // Initialize hero data with default values
+    this.heroData = {
+      id: 1,
+      title1: "Workshop Lilin Aromaterapi oleh",
+      title2: "WeisCandle",
+      description: "Pelajari seni membuat lilin aromaterapi yang menenangkan dengan teknik profesional dan bahan berkualitas tinggi.",
+      imageUrl: "/images/hero-default.jpg",
+      imageAlt: "Aromatherapy candle making workshop setup",
+      showButtons: true,
+      showStats: true,
+      statsNumber: "500+",
+      statsLabel: "Peserta Puas",
+      updatedAt: new Date()
+    };
+
+    // Initialize workshop packages
+    this.workshopPackages = [
+      {
+        id: 1,
+        name: "Workshop Basic",
+        description: "Untuk pemula yang ingin belajar dasar",
+        price: "Rp 350.000",
+        duration: "Durasi 3 jam",
+        features: JSON.stringify([
+          "Membuat 2 lilin aromaterapi",
+          "Materi & tools disediakan",
+          "Sertifikat keikutsertaan"
+        ]),
+        isPopular: false,
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        name: "Workshop Premium",
+        description: "Untuk yang ingin belajar lebih mendalam",
+        price: "Rp 550.000",
+        duration: "Durasi 5 jam",
+        features: JSON.stringify([
+          "Membuat 4 lilin aromaterapi",
+          "Teknik advanced blending",
+          "Starter kit take home",
+          "Konsultasi 1 bulan"
+        ]),
+        isPopular: true,
+        updatedAt: new Date()
+      },
+      {
+        id: 3,
+        name: "Workshop Pro",
+        description: "Untuk calon entrepreneur",
+        price: "Rp 750.000",
+        duration: "Durasi 8 jam (2 hari)",
+        features: JSON.stringify([
+          "Membuat 6 lilin aromaterapi",
+          "Business planning session",
+          "Complete starter kit",
+          "Mentoring 3 bulan"
+        ]),
+        isPopular: false,
+        updatedAt: new Date()
+      }
+    ];
+
+    // Initialize workshop curriculum
+    this.workshopCurriculum = [
+      {
+        id: 1,
+        step: "1",
+        title: "Pengenalan Aromaterapi",
+        description: "Memahami sejarah aromaterapi, manfaat kesehatan, jenis-jenis essential oil, dan properti terapeutiknya.",
+        duration: "45 menit",
+        order: 1,
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        step: "2",
+        title: "Pemilihan Bahan & Alat",
+        description: "Mengenal berbagai jenis wax (soy, beeswax, coconut), memilih wick yang tepat, dan essential oil berkualitas.",
+        duration: "30 menit",
+        order: 2,
+        updatedAt: new Date()
+      },
+      {
+        id: 3,
+        step: "3",
+        title: "Teknik Blending",
+        description: "Mempelajari cara mencampur essential oil, menghitung persentase, dan menciptakan signature scent.",
+        duration: "60 menit",
+        order: 3,
+        updatedAt: new Date()
+      },
+      {
+        id: 4,
+        step: "4",
+        title: "Proses Pembuatan",
+        description: "Praktik langsung melting wax, mixing essential oil, pouring, dan finishing dengan teknik profesional.",
+        duration: "90 menit",
+        order: 4,
+        updatedAt: new Date()
+      },
+      {
+        id: 5,
+        step: "5",
+        title: "Quality Control",
+        description: "Memahami standar kualitas, troubleshooting masalah umum, dan tips untuk hasil optimal.",
+        duration: "30 menit",
+        order: 5,
+        updatedAt: new Date()
+      },
+      {
+        id: 6,
+        step: "6",
+        title: "Packaging & Branding",
+        description: "Teknik packaging yang menarik, labeling produk, dan strategi branding untuk penjualan.",
+        duration: "45 menit",
+        order: 6,
+        updatedAt: new Date()
+      }
+    ];
+    
+    // Initialize products
+    this.products = [
+      {
+        id: 1,
+        name: "Lilin Aromaterapi Lavender",
+        category: "Aromaterapi",
+        price: "Rp 45.000",
+        stock: "24",
+        sold: "156",
+        status: "active",
+        imageUrl: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+        description: "Lilin aromaterapi dengan essential oil lavender murni untuk relaksasi dan tidur yang nyenyak",
+        moq: "50 pcs",
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        name: "Lilin Aromaterapi Eucalyptus",
+        category: "Aromaterapi",
+        price: "Rp 48.000",
+        stock: "18",
+        sold: "132",
+        status: "active",
+        imageUrl: "https://images.unsplash.com/photo-1574361034536-9e0a5b05b6b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+        description: "Lilin aromaterapi eucalyptus untuk membantu pernapasan dan melegakan hidung tersumbat",
+        moq: "50 pcs",
+        updatedAt: new Date()
+      },
+      {
+        id: 3,
+        name: "Lilin Aromaterapi Rose",
+        category: "Aromaterapi",
+        price: "Rp 52.000",
+        stock: "0",
+        sold: "89",
+        status: "out_of_stock",
+        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+        description: "Lilin aromaterapi dengan aroma rose yang romantis dan menenangkan",
+        moq: "50 pcs",
+        updatedAt: new Date()
+      },
+      {
+        id: 4,
+        name: "Starter Kit Lilin DIY",
+        category: "DIY Kit",
+        price: "Rp 125.000",
+        stock: "15",
+        sold: "67",
+        status: "active",
+        imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
+        description: "Paket lengkap untuk membuat lilin aromaterapi sendiri di rumah",
+        moq: "20 sets",
+        updatedAt: new Date()
+      }
+    ];
+    
+    // Initialize contact info with default values
+    this.contactInfo = {
+      id: 1,
+      phone: "+62 812-3456-7890",
+      whatsapp: "+62 812-3456-7890",
+      email: "info@weiscandle.com",
+      website: "https://weiscandle.com",
+      address: "Jl. Raya No. 123, Kemang\nJakarta Selatan 12345\nIndonesia",
+      mapEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613!3d-6.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5d2e764b12d%3A0x3d2ad6e1e0e9bcc8!2sJakarta%2C%20Indonesia!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid",
+      instagram: "@weiscandle_official",
+      facebook: "WeisCandle Indonesia",
+      tiktok: "@weiscandle",
+      updatedAt: new Date()
+    };
     
     // Initialize with sample blog posts
     this.initializeBlogPosts();
@@ -182,6 +396,28 @@ export class MemStorage implements IStorage {
     return post;
   }
 
+  async updateBlogPost(id: number, insertPost: InsertBlogPost): Promise<BlogPost | undefined> {
+    const existingPost = this.blogPosts.get(id);
+    if (!existingPost) {
+      return undefined;
+    }
+    
+    const updatedPost: BlogPost = {
+      ...existingPost,
+      ...insertPost,
+      id,
+      publishedAt: existingPost.publishedAt, // Keep original publish date
+      featured: insertPost.featured ?? false,
+    };
+    
+    this.blogPosts.set(id, updatedPost);
+    return updatedPost;
+  }
+
+  async deleteBlogPost(id: number): Promise<boolean> {
+    return this.blogPosts.delete(id);
+  }
+
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const id = this.currentContactId++;
     const contact: Contact = {
@@ -193,6 +429,84 @@ export class MemStorage implements IStorage {
     this.contacts.set(id, contact);
     console.log('New contact received:', contact);
     return contact;
+  }
+
+  async getHeroData(): Promise<HeroData> {
+    return this.heroData;
+  }
+
+  async updateHeroData(data: Partial<InsertHeroData>): Promise<HeroData> {
+    this.heroData = {
+      ...this.heroData,
+      ...data,
+      updatedAt: new Date()
+    };
+    console.log('Hero data updated:', this.heroData);
+    return this.heroData;
+  }
+
+  async getWorkshopPackages(): Promise<WorkshopPackage[]> {
+    return this.workshopPackages;
+  }
+
+  async updateWorkshopPackages(packages: InsertWorkshopPackage[]): Promise<WorkshopPackage[]> {
+    // Update existing packages and add new ones
+    this.workshopPackages = packages.map((pkg, index) => ({
+      ...pkg,
+      id: index + 1,
+      isPopular: pkg.isPopular ?? false,
+      updatedAt: new Date()
+    }));
+    console.log('Workshop packages updated:', this.workshopPackages);
+    return this.workshopPackages;
+  }
+
+  async getWorkshopCurriculum(): Promise<WorkshopCurriculum[]> {
+    return this.workshopCurriculum.sort((a, b) => a.order - b.order);
+  }
+
+  async updateWorkshopCurriculum(curriculum: InsertWorkshopCurriculum[]): Promise<WorkshopCurriculum[]> {
+    // Update existing curriculum and add new ones
+    this.workshopCurriculum = curriculum.map((curr, index) => ({
+      ...curr,
+      id: index + 1,
+      order: curr.order ?? index + 1,
+      updatedAt: new Date()
+    }));
+    console.log('Workshop curriculum updated:', this.workshopCurriculum);
+    return this.workshopCurriculum;
+  }
+
+  async getProducts(): Promise<Product[]> {
+    return this.products;
+  }
+
+  async updateProducts(products: InsertProduct[]): Promise<Product[]> {
+    // Update existing products and add new ones
+    this.products = products.map((product, index) => ({
+      ...product,
+      id: index + 1,
+      description: product.description ?? null,
+      imageUrl: product.imageUrl ?? null,
+      moq: product.moq ?? null,
+      updatedAt: new Date()
+    }));
+    console.log('Products updated:', this.products);
+    return this.products;
+  }
+
+  async getContactInfo(): Promise<ContactInfo> {
+    return this.contactInfo;
+  }
+
+  async updateContactInfo(data: InsertContactInfo): Promise<ContactInfo> {
+    this.contactInfo = {
+      ...this.contactInfo,
+      ...data,
+      updatedAt: new Date()
+    };
+    console.log('Contact info updated:', this.contactInfo);
+    return this.contactInfo;
   }
 }
 

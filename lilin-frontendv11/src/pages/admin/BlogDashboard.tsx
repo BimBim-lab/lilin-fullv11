@@ -1,73 +1,249 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit3, Trash2, FileText, Eye, Calendar } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Edit3, Trash2, FileText, Eye, Calendar, Save, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { type BlogPost, type InsertBlogPost } from "@/shared/schema";
 
 export default function BlogDashboard() {
-  const articles = [
-    {
-      id: 1,
-      title: "Tips Memilih Essential Oil Terbaik untuk Lilin Aromaterapi",
-      slug: "tips-memilih-essential-oil-terbaik",
-      excerpt: "Panduan lengkap memilih essential oil berkualitas untuk hasil lilin aromaterapi yang sempurna.",
-      status: "published",
-      author: "Admin",
-      publishDate: "2024-01-10",
-      views: 1234,
-      comments: 12
-    },
-    {
-      id: 2,
-      title: "5 Manfaat Aromaterapi untuk Kesehatan Mental",
-      slug: "manfaat-aromaterapi-kesehatan-mental",
-      excerpt: "Eksplorasi manfaat aromaterapi dalam meningkatkan kesehatan mental dan mengurangi stress.",
-      status: "published",
-      author: "Admin",
-      publishDate: "2024-01-08",
-      views: 987,
-      comments: 8
-    },
-    {
-      id: 3,
-      title: "Tutorial Lengkap Membuat Lilin Aromaterapi di Rumah",
-      slug: "tutorial-membuat-lilin-aromaterapi",
-      excerpt: "Step by step panduan membuat lilin aromaterapi berkualitas di rumah dengan alat sederhana.",
-      status: "draft",
-      author: "Admin",
-      publishDate: null,
-      views: 0,
-      comments: 0
-    },
-    {
-      id: 4,
-      title: "Sejarah dan Perkembangan Aromaterapi di Dunia",
-      slug: "sejarah-perkembangan-aromaterapi",
-      excerpt: "Menelusuri perjalanan aromaterapi dari zaman kuno hingga menjadi tren modern.",
-      status: "published",
-      author: "Admin",
-      publishDate: "2024-01-05",
-      views: 756,
-      comments: 15
-    }
-  ];
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [articles, setArticles] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<BlogPost | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newArticle, setNewArticle] = useState<InsertBlogPost>({
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    imageUrl: "",
+    featured: false
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "published": return "bg-green-100 text-green-800";
-      case "draft": return "bg-yellow-100 text-yellow-800";
-      case "archived": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+  // Load articles on component mount
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/blog');
+      if (response.ok) {
+        const data = await response.json();
+        setArticles(data);
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error loading articles:', error);
+      toast({
+        title: "Error",
+        description: "Gagal memuat data artikel",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "published": return "Published";
-      case "draft": return "Draft";
-      case "archived": return "Archived";
-      default: return "Unknown";
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9 -]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const handleAddArticle = () => {
+    setEditingArticle(null);
+    setNewArticle({
+      title: "",
+      slug: "",
+      excerpt: "",
+      content: "",
+      imageUrl: "",
+      featured: false
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleEditArticle = (article: BlogPost) => {
+    setEditingArticle(article);
+    setNewArticle({
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      content: article.content,
+      imageUrl: article.imageUrl,
+      featured: article.featured
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveArticle = async () => {
+    try {
+      // Validation
+      if (!newArticle.title.trim()) {
+        toast({
+          title: "Error",
+          description: "Judul artikel harus diisi",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!newArticle.excerpt.trim()) {
+        toast({
+          title: "Error", 
+          description: "Excerpt artikel harus diisi",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!newArticle.content.trim()) {
+        toast({
+          title: "Error",
+          description: "Konten artikel harus diisi", 
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setIsSaving(true);
+
+      // Auto-generate slug if empty
+      if (!newArticle.slug && newArticle.title) {
+        newArticle.slug = generateSlug(newArticle.title);
+      }
+
+      let response;
+      if (editingArticle) {
+        // Update existing article
+        response = await fetch(`/api/blog/${editingArticle.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newArticle),
+        });
+      } else {
+        // Create new article
+        response = await fetch('/api/blog', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newArticle),
+        });
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Save failed: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const savedArticle = await response.json();
+      
+      if (editingArticle) {
+        setArticles(articles.map(a => a.id === editingArticle.id ? savedArticle : a));
+      } else {
+        setArticles([savedArticle, ...articles]);
+      }
+
+      // Invalidate React Query cache to update all components
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/blog/${savedArticle.slug}`] });
+
+      setIsDialogOpen(false);
+      toast({
+        title: "Success",
+        description: editingArticle ? "Artikel berhasil diupdate" : "Artikel berhasil ditambahkan",
+      });
+    } catch (error) {
+      console.error('Error saving article:', error);
+      toast({
+        title: "Error",
+        description: `Gagal menyimpan artikel: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  const handleDeleteArticle = async (articleId: number) => {
+    try {
+      const response = await fetch(`/api/blog/${articleId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
+      }
+
+      setArticles(articles.filter(a => a.id !== articleId));
+      
+      // Invalidate React Query cache to update all components
+      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      
+      toast({
+        title: "Success",
+        description: "Artikel berhasil dihapus",
+      });
+    } catch (error) {
+      console.error('Error deleting article:', error);
+      toast({
+        title: "Error",
+        description: `Gagal menghapus artikel: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePreview = (slug: string) => {
+    window.open(`/blog/${slug}`, '_blank');
+  };
+
+  const getStatusColor = (article: BlogPost) => {
+    // Check if article is published (has publishedAt and featured status)
+    if (article.publishedAt) {
+      return "bg-green-100 text-green-800";
+    }
+    return "bg-yellow-100 text-yellow-800";
+  };
+
+  const getStatusText = (article: BlogPost) => {
+    if (article.publishedAt) {
+      return "Published";
+    }
+    return "Draft";
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  // Calculate stats from actual data
+  const totalArticles = articles.length;
+  const publishedArticles = articles.filter(a => a.publishedAt).length;
+  const draftArticles = totalArticles - publishedArticles;
 
   return (
     <div className="space-y-6">
@@ -77,20 +253,130 @@ export default function BlogDashboard() {
           <h2 className="text-xl font-bold text-gray-900">Blog Management</h2>
           <p className="text-sm text-gray-500">Kelola artikel blog dan konten edukasi</p>
         </div>
-        <Button className="bg-rose-gold hover:bg-rose-gold/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Tulis Artikel Baru
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={handleAddArticle} className="bg-rose-gold hover:bg-rose-gold/90">
+              <Plus className="w-4 h-4 mr-2" />
+              Tulis Artikel Baru
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingArticle ? 'Edit Artikel' : 'Tulis Artikel Baru'}</DialogTitle>
+              <p className="text-sm text-gray-500">* = Field wajib diisi</p>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Judul Artikel *</Label>
+                <Input
+                  id="title"
+                  value={newArticle.title}
+                  onChange={(e) => {
+                    const title = e.target.value;
+                    setNewArticle({
+                      ...newArticle, 
+                      title,
+                      slug: generateSlug(title)
+                    });
+                  }}
+                  placeholder="Masukkan judul artikel"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="slug">Slug URL</Label>
+                <Input
+                  id="slug"
+                  value={newArticle.slug}
+                  onChange={(e) => setNewArticle({...newArticle, slug: e.target.value})}
+                  placeholder="url-artikel-ini"
+                />
+              </div>
+              <div>
+                <Label htmlFor="excerpt">Excerpt *</Label>
+                <Textarea
+                  id="excerpt"
+                  value={newArticle.excerpt}
+                  onChange={(e) => setNewArticle({...newArticle, excerpt: e.target.value})}
+                  placeholder="Ringkasan artikel yang menarik..."
+                  rows={3}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="imageUrl">URL Gambar</Label>
+                <Input
+                  id="imageUrl"
+                  value={newArticle.imageUrl}
+                  onChange={(e) => setNewArticle({...newArticle, imageUrl: e.target.value})}
+                  placeholder="https://example.com/image.jpg"
+                />
+                {newArticle.imageUrl && (
+                  <div className="mt-2">
+                    <img 
+                      src={newArticle.imageUrl} 
+                      alt="Preview" 
+                      className="w-32 h-24 object-cover rounded border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="content">Konten Artikel *</Label>
+                <Textarea
+                  id="content"
+                  value={newArticle.content}
+                  onChange={(e) => setNewArticle({...newArticle, content: e.target.value})}
+                  placeholder="Tulis konten artikel dalam HTML..."
+                  rows={10}
+                  required
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  {newArticle.content.length} karakter
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="featured"
+                  checked={newArticle.featured}
+                  onCheckedChange={(checked) => setNewArticle({...newArticle, featured: checked})}
+                />
+                <Label htmlFor="featured">Artikel Pilihan</Label>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Batal
+                </Button>
+                <Button onClick={handleSaveArticle} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      {editingArticle ? 'Update' : 'Publish'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Artikel</p>
-                <p className="text-2xl font-bold text-gray-900">24</p>
+                <p className="text-2xl font-bold text-gray-900">{totalArticles}</p>
               </div>
               <FileText className="w-8 h-8 text-blue-500" />
             </div>
@@ -101,7 +387,7 @@ export default function BlogDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Published</p>
-                <p className="text-2xl font-bold text-gray-900">18</p>
+                <p className="text-2xl font-bold text-gray-900">{publishedArticles}</p>
               </div>
               <div className="text-green-500">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -116,7 +402,7 @@ export default function BlogDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Draft</p>
-                <p className="text-2xl font-bold text-gray-900">6</p>
+                <p className="text-2xl font-bold text-gray-900">{draftArticles}</p>
               </div>
               <div className="text-yellow-500">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -126,71 +412,129 @@ export default function BlogDashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Views</p>
-                <p className="text-2xl font-bold text-gray-900">45.2K</p>
-              </div>
-              <Eye className="w-8 h-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Articles List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Artikel</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {articles.map((article) => (
-              <div key={article.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="font-semibold text-gray-900 hover:text-rose-gold cursor-pointer">
-                        {article.title}
-                      </h3>
-                      <Badge className={getStatusColor(article.status)}>
-                        {getStatusText(article.status)}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{article.excerpt}</p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span>By {article.author}</span>
-                      {article.publishDate && (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <span className="ml-2">Loading...</span>
+        </div>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Daftar Artikel ({articles.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {articles.map((article) => (
+                <div key={article.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h3 
+                          className="font-semibold text-gray-900 hover:text-rose-gold cursor-pointer"
+                          onClick={() => handlePreview(article.slug)}
+                        >
+                          {article.title}
+                        </h3>
+                        <Badge className={getStatusColor(article)}>
+                          {getStatusText(article)}
+                        </Badge>
+                        {article.featured && (
+                          <Badge className="bg-rose-gold text-white">
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{article.excerpt}</p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>By Admin</span>
+                        {article.publishedAt && (
+                          <span className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            {formatDate(article.publishedAt)}
+                          </span>
+                        )}
                         <span className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {article.publishDate}
+                          <FileText className="w-4 h-4 mr-1" />
+                          {article.content.length} karakter
                         </span>
-                      )}
-                      <span className="flex items-center">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {article.views} views
-                      </span>
-                      <span>{article.comments} comments</span>
+                        {article.imageUrl && (
+                          <span className="text-green-600">
+                            📷 Gambar
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2 ml-4">
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit3 className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center space-x-2 ml-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handlePreview(article.slug)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditArticle(article)}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Artikel</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Apakah Anda yakin ingin menghapus artikel "{article.title}"? 
+                              Tindakan ini tidak dapat dibatalkan.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteArticle(article.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Ya, Hapus
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+              {articles.length === 0 && !isLoading && (
+                <div className="text-center py-12 text-gray-500">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Belum Ada Artikel</h3>
+                  <p className="text-gray-500 mb-6">
+                    Mulai dengan membuat artikel pertama Anda untuk berbagi pengetahuan tentang aromaterapi.
+                  </p>
+                  <Button 
+                    onClick={handleAddArticle} 
+                    className="bg-rose-gold hover:bg-rose-gold/90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tulis Artikel Pertama
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

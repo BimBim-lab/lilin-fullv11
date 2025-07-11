@@ -1,68 +1,111 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import SchedulePricing from "@/components/SchedulePricing";
+import { ContactInfo } from "@/shared/schema";
 
 interface WorkshopCurriculum {
+  id?: number;
   step: string;
   title: string;
   description: string;
   duration: string;
+  order?: number;
 }
 
 interface WorkshopProps {
-  curriculum?: WorkshopCurriculum[];
-  packages?: any[];
   onPackageSelect?: (packageName: string) => void;
 }
 
-const defaultCurriculum: WorkshopCurriculum[] = [
-  {
-    step: "1",
-    title: "Pengenalan Aromaterapi",
-    description: "Memahami sejarah aromaterapi, manfaat kesehatan, jenis-jenis essential oil, dan properti terapeutiknya.",
-    duration: "45 menit"
-  },
-  {
-    step: "2",
-    title: "Pemilihan Bahan & Alat",
-    description: "Mengenal berbagai jenis wax (soy, beeswax, coconut), memilih wick yang tepat, dan essential oil berkualitas.",
-    duration: "30 menit"
-  },
-  {
-    step: "3",
-    title: "Teknik Blending",
-    description: "Mempelajari cara mencampur essential oil, menghitung persentase, dan menciptakan signature scent.",
-    duration: "60 menit"
-  },
-  {
-    step: "4",
-    title: "Proses Pembuatan",
-    description: "Praktik langsung melting wax, mixing essential oil, pouring, dan finishing dengan teknik profesional.",
-    duration: "90 menit"
-  },
-  {
-    step: "5",
-    title: "Quality Control",
-    description: "Memahami standar kualitas, troubleshooting masalah umum, dan tips untuk hasil optimal.",
-    duration: "30 menit"
-  },
-  {
-    step: "6",
-    title: "Packaging & Branding",
-    description: "Teknik packaging yang menarik, labeling produk, dan strategi branding untuk penjualan.",
-    duration: "45 menit"
-  }
-];
-
 export default function Workshop({ 
-  curriculum = defaultCurriculum, 
-  packages, 
   onPackageSelect 
 }: WorkshopProps) {
+  const [curriculum, setCurriculum] = useState<WorkshopCurriculum[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch contact info for WhatsApp integration
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ['contactInfo'],
+    queryFn: async () => {
+      const response = await fetch('/api/contact-info');
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact info');
+      }
+      return response.json();
+    },
+  });
+
   useEffect(() => {
     document.title = "Detail Workshop Lilin Aromaterapi - WeisCandle";
+    loadCurriculum();
   }, []);
+
+  const loadCurriculum = async () => {
+    try {
+      const response = await fetch('/api/workshop/curriculum');
+      if (response.ok) {
+        const data = await response.json();
+        setCurriculum(data);
+      }
+    } catch (error) {
+      console.error('Error loading curriculum:', error);
+      // Fallback to default curriculum if API fails
+      setCurriculum([
+        {
+          step: "1",
+          title: "Pengenalan Aromaterapi",
+          description: "Memahami sejarah aromaterapi, manfaat kesehatan, jenis-jenis essential oil, dan properti terapeutiknya.",
+          duration: "45 menit"
+        },
+        {
+          step: "2",
+          title: "Pemilihan Bahan & Alat",
+          description: "Mengenal berbagai jenis wax (soy, beeswax, coconut), memilih wick yang tepat, dan essential oil berkualitas.",
+          duration: "30 menit"
+        },
+        {
+          step: "3",
+          title: "Teknik Blending",
+          description: "Mempelajari cara mencampur essential oil, menghitung persentase, dan menciptakan signature scent.",
+          duration: "60 menit"
+        },
+        {
+          step: "4",
+          title: "Proses Pembuatan",
+          description: "Praktik langsung melting wax, mixing essential oil, pouring, dan finishing dengan teknik profesional.",
+          duration: "90 menit"
+        },
+        {
+          step: "5",
+          title: "Quality Control",
+          description: "Memahami standar kualitas, troubleshooting masalah umum, dan tips untuk hasil optimal.",
+          duration: "30 menit"
+        },
+        {
+          step: "6",
+          title: "Packaging & Branding",
+          description: "Teknik packaging yang menarik, labeling produk, dan strategi branding untuk penjualan.",
+          duration: "45 menit"
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-gold mx-auto mb-4"></div>
+            <p>Loading workshop curriculum...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-16">
@@ -86,7 +129,7 @@ export default function Workshop({
             </h2>
             <div className="space-y-6">
               {curriculum.map((item, index) => (
-                <div key={index} className="flex items-start bg-white p-6 rounded-xl shadow-lg hover-scale">
+                <div key={item.id || index} className="flex items-start bg-white p-6 rounded-xl shadow-lg hover-scale">
                   <div className="w-12 h-12 bg-rose-gold rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                     <span className="text-white font-bold">{item.step}</span>
                   </div>
@@ -181,7 +224,6 @@ export default function Workshop({
           <SchedulePricing 
             title="Pilih Paket Workshop yang Sesuai"
             subtitle="Temukan paket workshop yang cocok dengan kebutuhan dan budget Anda"
-            packages={packages}
             onPackageSelect={onPackageSelect}
           />
         </div>
@@ -196,13 +238,32 @@ export default function Workshop({
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/contact">
-              <Button className="bg-charcoal text-white px-8 py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 rounded-full">
+              <Button className="bg-charcoal text-white px-8 py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 rounded-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (contactInfo?.whatsapp) {
+                    const message = `Halo Kak, saya ingin daftar workshop Lilin Aromaterapi. Mohon info selanjutnya ya kak 😊`;
+                    const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                  } else {
+                    alert('Nomor WhatsApp belum tersedia');
+                  }
+                }}
+              >
                 Daftar Workshop Sekarang
               </Button>
             </Link>
             <Button 
               variant="outline"
-              onClick={() => window.open('https://wa.me/6281234567890?text=Halo%20WeisCandle%2C%20saya%20ingin%20konsultasi%20tentang%20workshop', '_blank')}
+              onClick={() => {
+                if (contactInfo?.whatsapp) {
+                  const message = `Halo WeisCandle, saya ingin konsultasi tentang workshop`;
+                  const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                  window.open(whatsappUrl, '_blank');
+                } else {
+                  alert('Nomor WhatsApp belum tersedia');
+                }
+              }}
               className="border-2 border-charcoal text-charcoal px-8 py-4 text-lg font-semibold hover:bg-charcoal hover:text-white transition-all duration-300 rounded-full"
             >
               Konsultasi Gratis

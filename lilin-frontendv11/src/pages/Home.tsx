@@ -1,29 +1,101 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import HeroSection from "@/components/HeroSection";
 import WorkshopBenefits from "@/components/WorkshopBenefits";
 import SchedulePricing from "@/components/SchedulePricing";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { type ContactInfo } from "@/shared/schema";
+
+interface HeroData {
+  title1: string;
+  title2: string;
+  description: string;
+  imageUrl?: string;
+  imageAlt: string;
+  showButtons: boolean;
+  showStats: boolean;
+  statsNumber: string;
+  statsLabel: string;
+}
 
 export default function Home() {
+  const [heroData, setHeroData] = useState<HeroData>({
+    title1: "Workshop Lilin Aromaterapi oleh",
+    title2: "WeisCandle", 
+    description: "Pelajari seni membuat lilin aromaterapi yang menenangkan dengan teknik profesional dan bahan berkualitas tinggi.",
+    imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+    imageAlt: "Aromatherapy candle making workshop setup",
+    showButtons: true,
+    showStats: true,
+    statsNumber: "500+",
+    statsLabel: "Peserta Puas"
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Fetch contact info for WhatsApp integration
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ["/api/contact-info"],
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Default WhatsApp number if API fails
+  const whatsappNumber = contactInfo?.whatsapp || "+62 812-3456-7890";
+
+  const handleWhatsAppRegistration = (message: string = "Halo Kak, saya ingin daftar workshop Lilin Aromaterapi. Mohon info selanjutnya ya kak 😊") => {
+    const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\s/g, '').replace('+', '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   useEffect(() => {
     document.title = "WeisCandle - Workshop Lilin Aromaterapi Terbaik di Indonesia";
+    
+    // Fetch hero data from backend
+    const fetchHeroData = async () => {
+      try {
+        const response = await fetch('/api/hero');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Hero data received from backend:', data);
+          setHeroData(data);
+        } else {
+          console.error('Failed to fetch hero data:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching hero data:', error);
+        // Keep using default data if fetch fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHeroData();
   }, []);
 
   return (
     <div className="min-h-screen">
-      <HeroSection 
-        image="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
-        title1="Workshop Lilin Aromaterapi oleh"
-        title2="WeisCandle"
-        description="Pelajari seni membuat lilin aromaterapi yang menenangkan dengan teknik profesional dan bahan berkualitas tinggi."
-        imageAlt="Aromatherapy candle making workshop setup"
-        showButtons={true}
-        showStats={true}
-        statsNumber="500+"
-        statsLabel="Peserta Puas"
-      />
+      {loading ? (
+        // Loading skeleton for hero section
+        <div className="h-96 bg-gray-200 animate-pulse flex items-center justify-center">
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      ) : (
+        <HeroSection 
+          image={heroData.imageUrl || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"}
+          title1={heroData.title1}
+          title2={heroData.title2}
+          description={heroData.description}
+          imageAlt={heroData.imageAlt}
+          showButtons={heroData.showButtons}
+          showStats={heroData.showStats}
+          statsNumber={heroData.statsNumber}
+          statsLabel={heroData.statsLabel}
+          onDaftarClick={() => handleWhatsAppRegistration()}
+        />
+      )}
       <WorkshopBenefits />
       <SchedulePricing />
       <TestimonialCarousel />
@@ -112,14 +184,15 @@ export default function Home() {
               Daftar sekarang dan bergabung dengan ratusan peserta yang sudah merasakan manfaatnya
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact">
-                <Button className="bg-rose-gold text-white px-8 py-4 text-lg font-semibold hover:bg-charcoal transition-all duration-300 rounded-full">
-                  Daftar Workshop
-                </Button>
-              </Link>
+              <Button 
+                onClick={() => handleWhatsAppRegistration()}
+                className="bg-rose-gold text-white px-8 py-4 text-lg font-semibold hover:bg-charcoal transition-all duration-300 rounded-full"
+              >
+                Daftar Workshop
+              </Button>
               <Button 
                 variant="outline"
-                onClick={() => window.open('https://wa.me/6281234567890?text=Halo%20WeisCandle%2C%20saya%20ingin%20konsultasi%20tentang%20workshop', '_blank')}
+                onClick={() => handleWhatsAppRegistration("Halo WeisCandle, saya ingin konsultasi tentang workshop")}
                 className="border-2 border-charcoal text-charcoal px-8 py-4 text-lg font-semibold hover:bg-charcoal hover:text-white transition-all duration-300 rounded-full"
               >
                 Konsultasi Gratis

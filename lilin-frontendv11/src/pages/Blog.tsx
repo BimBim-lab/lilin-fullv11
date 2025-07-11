@@ -22,12 +22,25 @@ export default function Blog({
     document.title = "Blog Aromaterapi - Tips & Artikel WeisCandle";
   }, []);
 
-  const { data: posts, isLoading, error } = useQuery<BlogPost[]>({
+  const { data: posts, isLoading, error, refetch } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog"],
     // Provide default posts if API fails
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds - shorter cache for more real-time updates
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    refetchOnMount: true, // Always refetch on component mount
   });
+
+  // Auto-refresh every 30 seconds when page is visible
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        refetch();
+      }
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   // Use default posts if API fails or returns empty
   const displayPosts = posts || defaultPosts;

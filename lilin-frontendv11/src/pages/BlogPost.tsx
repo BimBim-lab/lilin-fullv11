@@ -35,13 +35,17 @@ export default function BlogPostPage({
     queryKey: [`/api/blog/${slug}`],
     enabled: !!slug,
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 1000, // 30 seconds for more real-time updates
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   const { data: allPosts } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog"],
     retry: 1,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Use default data if API fails

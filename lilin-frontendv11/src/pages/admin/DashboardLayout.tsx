@@ -66,6 +66,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       color: "text-pink-600",
       bgColor: "bg-pink-50",
       description: "Kelola kontak masuk"
+    },
+    { 
+      id: "analytics", 
+      label: "Analytics", 
+      icon: TrendingUp, 
+      path: "/admin/analytics",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+      description: "Monitor website analytics"
     }
   ];
 
@@ -133,7 +142,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <button
                     className={`flex items-center space-x-2 px-4 py-4 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                       isActive
-                        ? 'border-rose-gold text-rose-gold bg-rose-gold bg-opacity-5'
+                        ? 'border-rose-gold text-gray-800 bg-rose-gold bg-opacity-10 font-semibold'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >

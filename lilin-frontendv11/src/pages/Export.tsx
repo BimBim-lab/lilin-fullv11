@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { type Product, ContactInfo } from "@/shared/schema";
 
 interface ProductCategory {
   name: string;
@@ -15,34 +17,94 @@ interface ExportProps {
   productCategories?: ProductCategory[];
 }
 
-const defaultProductCategories: ProductCategory[] = [
-  {
-    name: "Essential Oil Collection",
-    description: "Premium essential oils dari berbagai sumber terpercaya",
-    products: ["Lavender Oil", "Eucalyptus Oil", "Tea Tree Oil", "Peppermint Oil", "Lemongrass Oil"],
-    moq: "50 bottles per variant",
-    price: "$8-15 per bottle"
-  },
-  {
-    name: "Aromatherapy Candles",
-    description: "Lilin aromaterapi berkualitas tinggi dengan berbagai aroma",
-    products: ["Relaxation Blend", "Energy Boost", "Sleep Support", "Stress Relief", "Focus Enhancement"],
-    moq: "100 pcs per variant",
-    price: "$3-8 per piece"
-  },
-  {
-    name: "Candle Making Supplies",
-    description: "Bahan dan peralatan untuk membuat lilin aromaterapi",
-    products: ["Soy Wax", "Coconut Wax", "Cotton Wicks", "Glass Containers", "Labels"],
-    moq: "Varies per product",
-    price: "Contact for pricing"
-  }
-];
+export default function Export({ productCategories }: ExportProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function Export({ productCategories = defaultProductCategories }: ExportProps) {
+  // Fetch contact info for WhatsApp, email, and phone integration
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ['contactInfo'],
+    queryFn: async () => {
+      const response = await fetch('/api/contact-info');
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact info');
+      }
+      return response.json();
+    },
+  });
+
+  // Fetch products from backend
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data.filter((p: Product) => p.status === 'active')); // Only show active products
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     document.title = "Export & Wholesale - WeisCandle Aromaterapi";
+    fetchProducts();
+
+    // Auto-refresh products every 10 seconds to catch changes from admin dashboard
+    const interval = setInterval(fetchProducts, 10000);
+
+    // Listen for focus events to refresh when user comes back to tab
+    const handleFocus = () => {
+      fetchProducts();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // Listen for visibility change to refresh when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchProducts();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
+
+  // Static data for most sections (unchanged)
+  const staticStats = {
+    countries: "15+",
+    clients: "500+", 
+    products: "50+",
+    experience: "8+"
+  };
+
+  // Group products by category for display ONLY in "Product Categories for Export" section
+  const groupedProducts = products.reduce((acc, product) => {
+    if (!acc[product.category]) {
+      acc[product.category] = [];
+    }
+    acc[product.category].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+
+  // Create dynamic product categories based on actual products from admin dashboard
+  const dynamicProductCategories: ProductCategory[] = Object.entries(groupedProducts).map(([category, categoryProducts]) => ({
+    name: category,
+    description: `Produk ${category.toLowerCase()} berkualitas tinggi dengan standar internasional`,
+    products: categoryProducts.map(p => p.name),
+    moq: categoryProducts[0]?.moq || "Contact for MOQ",
+    price: `${categoryProducts[0]?.price} - ${categoryProducts[categoryProducts.length - 1]?.price}` || "Contact for pricing"
+  }));
+
+  // Use provided categories or dynamic ones (this affects ONLY the Product Categories section)
+  const displayCategories = productCategories || dynamicProductCategories;
 
   const exportServices = [
     {
@@ -103,19 +165,19 @@ export default function Export({ productCategories = defaultProductCategories }:
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-soft-pink bg-opacity-30 rounded-lg">
-                  <div className="text-2xl font-bold text-rose-gold">15+</div>
+                  <div className="text-2xl font-bold text-rose-gold">{staticStats.countries}</div>
                   <div className="text-sm text-charcoal">Countries</div>
                 </div>
                 <div className="text-center p-4 bg-soft-pink bg-opacity-30 rounded-lg">
-                  <div className="text-2xl font-bold text-rose-gold">500+</div>
+                  <div className="text-2xl font-bold text-rose-gold">{staticStats.clients}</div>
                   <div className="text-sm text-charcoal">B2B Clients</div>
                 </div>
                 <div className="text-center p-4 bg-soft-pink bg-opacity-30 rounded-lg">
-                  <div className="text-2xl font-bold text-rose-gold">50+</div>
+                  <div className="text-2xl font-bold text-rose-gold">{staticStats.products}</div>
                   <div className="text-sm text-charcoal">Products</div>
                 </div>
                 <div className="text-center p-4 bg-soft-pink bg-opacity-30 rounded-lg">
-                  <div className="text-2xl font-bold text-rose-gold">8+</div>
+                  <div className="text-2xl font-bold text-rose-gold">{staticStats.experience}</div>
                   <div className="text-sm text-charcoal">Years Experience</div>
                 </div>
               </div>
@@ -150,55 +212,84 @@ export default function Export({ productCategories = defaultProductCategories }:
           </div>
         </div>
 
-        {/* Product Categories */}
+        {/* Product Categories - DYNAMIC DATA FROM ADMIN DASHBOARD */}
         <div className="mb-20">
           <h2 className="text-3xl font-display font-bold text-charcoal text-center mb-12">
             Product Categories for Export
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {productCategories.map((category, index) => (
-              <Card key={index} className="hover-scale shadow-lg">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-charcoal mb-3">{category.name}</h3>
-                  <p className="text-gray-600 mb-4">{category.description}</p>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div>
-                      <h4 className="font-medium text-charcoal mb-2">Popular Products:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {category.products.map((product, idx) => (
-                          <Badge key={idx} variant="secondary" className="bg-soft-pink text-charcoal">
-                            {product}
-                          </Badge>
-                        ))}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-500">Loading products...</div>
+            </div>
+          ) : displayCategories.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {displayCategories.map((category, index) => (
+                <Card key={index} className="hover-scale shadow-lg">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold text-charcoal mb-3">{category.name}</h3>
+                    <p className="text-gray-600 mb-4">{category.description}</p>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div>
+                        <h4 className="font-medium text-charcoal mb-2">Available Products:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {category.products.slice(0, 5).map((product, idx) => (
+                            <Badge key={idx} variant="secondary" className="bg-soft-pink text-charcoal">
+                              {product}
+                            </Badge>
+                          ))}
+                          {category.products.length > 5 && (
+                            <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                              +{category.products.length - 5} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">MOQ:</span>
+                          <span className="font-medium text-charcoal">{category.moq}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Price Range:</span>
+                          <span className="font-medium text-charcoal">{category.price}</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 gap-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">MOQ:</span>
-                        <span className="font-medium text-charcoal">{category.moq}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Price Range:</span>
-                        <span className="font-medium text-charcoal">{category.price}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={() => window.open(`https://wa.me/6281234567890?text=I%20am%20interested%20in%20${category.name.replace(/\s+/g, '%20')}%20for%20export`, '_blank')}
-                    className="w-full bg-soft-pink text-charcoal hover:bg-rose-gold hover:text-white"
-                  >
-                    Inquire Now
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <Button 
+                      onClick={() => window.open(`https://wa.me/6281234567890?text=I%20am%20interested%20in%20${category.name.replace(/\s+/g, '%20')}%20for%20export`, '_blank')}
+                      className="w-full bg-soft-pink text-charcoal hover:bg-rose-gold hover:text-white"
+                    >
+                      Inquire Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-500 mb-4">No products available for export at the moment.</div>
+              <Button 
+                onClick={() => {
+                  if (contactInfo?.whatsapp) {
+                    const message = `Hello WeisCandle, I would like to inquire about available products for export`;
+                    const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                  } else {
+                    alert('WhatsApp contact not available');
+                  }
+                }}
+                className="bg-rose-gold text-white hover:bg-charcoal"
+              >
+                Contact Us for Product Information
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Export Services */}
+        {/* Export Services - STATIC DATA */}
         <div className="mb-20">
           <h2 className="text-3xl font-display font-bold text-charcoal text-center mb-12">
             Our Export Services
@@ -214,7 +305,7 @@ export default function Export({ productCategories = defaultProductCategories }:
           </div>
         </div>
 
-        {/* Certifications & Quality */}
+        {/* Certifications & Quality - STATIC DATA */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
           <div>
             <h2 className="text-3xl font-display font-bold text-charcoal mb-6">
@@ -246,7 +337,7 @@ export default function Export({ productCategories = defaultProductCategories }:
           </div>
         </div>
 
-        {/* Export Process */}
+        {/* Export Process - STATIC DATA */}
         <div className="mb-20">
           <h2 className="text-3xl font-display font-bold text-charcoal text-center mb-12">
             Export Process
@@ -269,7 +360,7 @@ export default function Export({ productCategories = defaultProductCategories }:
           </div>
         </div>
 
-        {/* Contact Form */}
+        {/* Contact Form - STATIC DATA */}
         <div id="contact-form" className="bg-gradient-to-br from-soft-pink to-rose-gold rounded-3xl p-8 md:p-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-display font-bold text-charcoal mb-4">
@@ -280,7 +371,7 @@ export default function Export({ productCategories = defaultProductCategories }:
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="text-center">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-charcoal rounded-full flex items-center justify-center mx-auto mb-4">
@@ -290,9 +381,12 @@ export default function Export({ productCategories = defaultProductCategories }:
                   </svg>
                 </div>
                 <h3 className="font-semibold text-charcoal mb-2">Email Export</h3>
-                <p className="text-gray-600">export@weiscandle.com</p>
+                <p className="text-gray-600">{contactInfo?.email || 'export@weiscandle.com'}</p>
                 <Button 
-                  onClick={() => window.location.href = 'mailto:export@weiscandle.com?subject=Export%20Inquiry'}
+                  onClick={() => {
+                    const email = contactInfo?.email || 'export@weiscandle.com';
+                    window.location.href = `mailto:${email}?subject=Export%20Inquiry`;
+                  }}
                   className="mt-4 w-full bg-charcoal text-white hover:bg-opacity-90"
                 >
                   Send Email
@@ -308,30 +402,20 @@ export default function Export({ productCategories = defaultProductCategories }:
                   </svg>
                 </div>
                 <h3 className="font-semibold text-charcoal mb-2">WhatsApp Export</h3>
-                <p className="text-gray-600">+62 812-3456-7890</p>
+                <p className="text-gray-600">{contactInfo?.whatsapp || '+62 812-3456-7890'}</p>
                 <Button 
-                  onClick={() => window.open('https://wa.me/6281234567890?text=Hello%20WeisCandle%2C%20I%20am%20interested%20in%20export%20partnership', '_blank')}
+                  onClick={() => {
+                    if (contactInfo?.whatsapp) {
+                      const message = `Hello WeisCandle, I am interested in export partnership`;
+                      const whatsappUrl = `https://wa.me/${contactInfo.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+                      window.open(whatsappUrl, '_blank');
+                    } else {
+                      alert('WhatsApp contact not available');
+                    }
+                  }}
                   className="mt-4 w-full bg-green-500 text-white hover:bg-green-600"
                 >
                   Chat Now
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <div className="w-16 h-16 bg-charcoal rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-charcoal mb-2">Phone Export</h3>
-                <p className="text-gray-600">+62 21-5555-9999</p>
-                <Button 
-                  onClick={() => window.location.href = 'tel:+622155559999'}
-                  className="mt-4 w-full bg-blue-500 text-white hover:bg-blue-600"
-                >
-                  Call Now
                 </Button>
               </CardContent>
             </Card>

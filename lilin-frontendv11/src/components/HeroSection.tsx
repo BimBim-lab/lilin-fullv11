@@ -11,6 +11,7 @@ interface HeroSectionProps {
   showStats?: boolean;
   statsNumber?: string;
   statsLabel?: string;
+  onDaftarClick?: () => void;
 }
 
 export default function HeroSection({ 
@@ -22,8 +23,11 @@ export default function HeroSection({
   imageAlt = "Workshop image",
   showStats = true,
   statsNumber = "500+",
-  statsLabel = "Peserta Puas"
+  statsLabel = "Peserta Puas",
+  onDaftarClick
 }: HeroSectionProps) {
+  console.log('HeroSection received image URL:', image);
+  
   const scrollToContact = () => {
     const contactSection = document.getElementById('contact-section');
     if (contactSection) {
@@ -46,7 +50,7 @@ export default function HeroSection({
             {showButtons && (
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button 
-                  onClick={scrollToContact}
+                  onClick={onDaftarClick || scrollToContact}
                   className="bg-charcoal text-white px-8 py-6 text-lg font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all duration-300 shadow-lg rounded-full"
                 >
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
