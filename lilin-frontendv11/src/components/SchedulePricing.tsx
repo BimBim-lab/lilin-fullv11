@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ContactInfo } from "@/shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface WorkshopPackage {
   id?: number;
   name: string;
@@ -31,7 +33,7 @@ export default function SchedulePricing({
   const { data: contactInfo } = useQuery<ContactInfo>({
     queryKey: ['contactInfo'],
     queryFn: async () => {
-      const response = await fetch('/api/contact-info');
+      const response = await fetch(`${API_BASE_URL}/api/contact-info`);
       if (!response.ok) {
         throw new Error('Failed to fetch contact info');
       }

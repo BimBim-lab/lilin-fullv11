@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { type ContactInfo, type InsertContactInfo } from "@/shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function ContactDashboard() {
   const { toast } = useToast();
   const [contactInfo, setContactInfo] = useState<ContactInfo>({
@@ -36,7 +38,7 @@ export default function ContactDashboard() {
   const loadContactInfo = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/contact-info');
+      const response = await fetch(`${API_BASE_URL}/api/contact-info`);
       if (response.ok) {
         const data = await response.json();
         setContactInfo(data);
@@ -69,10 +71,11 @@ export default function ContactDashboard() {
         tiktok: contactInfo.tiktok
       };
 
-      const response = await fetch('/api/contact-info', {
+      const response = await fetch(`${API_BASE_URL}/api/contact-info`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
         },
         body: JSON.stringify(updateData),
       });

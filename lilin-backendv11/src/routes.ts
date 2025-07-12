@@ -300,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/contact-info", async (req, res) => {
+  app.put("/api/contact-info", authMiddleware, async (req: any, res) => {
     try {
       const validatedData = insertContactInfoSchema.parse(req.body);
       const contactInfo = await storage.updateContactInfo(validatedData);
