@@ -96,7 +96,9 @@ app.use((req, res, next) => {
 
   next();
 });
-
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Backend API is running 🚀");
+});
 (async () => {
   const server = await registerRoutes(app);
 
