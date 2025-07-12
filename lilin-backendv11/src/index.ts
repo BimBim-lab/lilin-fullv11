@@ -15,12 +15,32 @@ const app = express();
 const allowedOrigins = process.env.NODE_ENV === "production" 
   ? [
       "https://lilin-fullv11.vercel.app",
-      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+      "https://lilin-fullv11-git-main-bimbim-labs-projects.vercel.app",
+      "https://lilin-fullv11-bimbim-labs-projects.vercel.app",
+      ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [])
     ]
   : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:5173"];
 
+console.log("CORS allowed origins:", allowedOrigins);
+
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // In production, also allow any vercel.app subdomain
+    if (process.env.NODE_ENV === "production" && origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    console.error(`CORS blocked origin: ${origin}`);
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
   credentials: true
 }));
 
@@ -97,7 +117,19 @@ app.use((req, res, next) => {
   next();
 });
 app.get("/", (_req: Request, res: Response) => {
-  res.send("Backend API is running 🚀");
+  res.json({
+    message: "Backend API is running 🚀",
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    version: "1.0.0"
+  });
+});
+
+app.get("/health", (_req: Request, res: Response) => {
+  res.json({
+    status: "healthy",
+    timestamp: new Date().toISOString()
+  });
 });
 (async () => {
   const server = await registerRoutes(app);

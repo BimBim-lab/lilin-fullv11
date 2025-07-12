@@ -32,6 +32,8 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
+      console.log("Attempting login to:", `${API_BASE_URL}/api/admin/login`);
+      
       const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: "POST",
         headers: {
@@ -39,6 +41,17 @@ export default function AdminLogin() {
         },
         body: JSON.stringify(credentials),
       });
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
+      // Check if response is actually JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const textResponse = await response.text();
+        console.error("Expected JSON but got:", textResponse);
+        throw new Error(`Server returned ${response.status}: Expected JSON response but got ${contentType}. Response: ${textResponse.substring(0, 200)}...`);
+      }
 
       const data = await response.json();
 
