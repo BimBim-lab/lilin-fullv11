@@ -44,7 +44,7 @@
   "contacts": [],
   "heroData": {
     "id": 1,
-    "title1": "Workshop Lilin Aromaterapi oleh",
+    "title1": "Workshop Lilin Aromaterapi olehh",
     "title2": "WeisCandle",
     "description": "Pelajari seni membuat lilin aromaterapi yang menenangkan dengan teknik profesional dan bahan berkualitas tinggi.",
     "imageUrl": "/images/hero-default.jpg",
@@ -53,7 +53,7 @@
     "showStats": true,
     "statsNumber": "500+",
     "statsLabel": "Peserta Puas",
-    "updatedAt": "2025-07-13T10:36:21.482Z"
+    "updatedAt": "2025-07-13T10:54:37.831Z"
   },
   "contactInfo": {
     "id": 1,
@@ -267,12 +267,6 @@
       "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
-  "adminCredentials": {
-    "id": 1,
-    "email": "admin@weiscandle.com",
-    "password": "$2b$10$oM6IU3W0nMy85dj4qzgeFuPI2Jt39prJVkONfzaKZR9jrq8dfaEs2",
-    "updatedAt": "2025-07-13T10:36:21.482Z"
-  },
   "currentUserId": 1,
   "currentBlogPostId": 4,
   "currentContactId": 1,

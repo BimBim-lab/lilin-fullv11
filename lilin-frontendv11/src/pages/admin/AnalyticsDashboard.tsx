@@ -29,9 +29,9 @@ interface AnalyticsData {
 
 export default function AnalyticsDashboard() {
   const [credentials, setCredentials] = useState<GACredentials>({
-    propertyId: "",
-    serviceAccountEmail: "",
-    privateKey: "",
+    propertyId: "123456789",
+    serviceAccountEmail: "analytics@your-project.iam.gserviceaccount.com",
+    privateKey: "-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----",
   });
   
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
@@ -41,6 +41,7 @@ export default function AnalyticsDashboard() {
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleCredentialsSubmit called with:', credentials);
     
     if (!credentials.propertyId || !credentials.serviceAccountEmail || !credentials.privateKey) {
       toast({
@@ -52,6 +53,7 @@ export default function AnalyticsDashboard() {
     }
 
     setIsCredentialsSet(true);
+    console.log('Credentials set to true');
     toast({
       title: "Kredensial Tersimpan",
       description: "Kredensial Google Analytics berhasil disimpan. Sekarang Anda dapat mengambil data analytics.",
@@ -59,6 +61,8 @@ export default function AnalyticsDashboard() {
   };
 
   const fetchAnalytics = async () => {
+    console.log('fetchAnalytics called, isCredentialsSet:', isCredentialsSet);
+    
     if (!isCredentialsSet) {
       toast({
         title: "Error",
@@ -69,6 +73,8 @@ export default function AnalyticsDashboard() {
     }
 
     setIsLoading(true);
+    console.log('Making request to:', `${API_BASE_URL}/api/analytics`);
+    console.log('With credentials:', credentials);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/analytics`, {
@@ -79,11 +85,14 @@ export default function AnalyticsDashboard() {
         body: JSON.stringify(credentials),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Analytics data received:', data);
       setAnalyticsData(data);
       
       toast({
@@ -164,6 +173,25 @@ export default function AnalyticsDashboard() {
                 Simpan Kredensial
               </Button>
             </form>
+
+            {/* Demo Button */}
+            <div className="pt-4 border-t">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  console.log("Demo button clicked");
+                  setIsCredentialsSet(true);
+                  fetchAnalytics();
+                }}
+              >
+                🎯 Demo: Tampilkan Data Sample
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                Klik untuk melihat contoh dashboard analytics
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
