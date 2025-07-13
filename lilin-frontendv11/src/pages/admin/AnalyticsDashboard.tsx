@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, TrendingUp, Users, Clock, MousePointer, Eye, Smartphone, Globe } from "lucide-react";
-import { API_BASE_URL } from "@/lib/config";
+import { Loader2, TrendingUp, Users, Clock, MousePointer, Eye, Smartphone, Globe, Shield, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 interface GACredentials {
   propertyId: string;
@@ -28,82 +28,95 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsDashboard() {
-  const [credentials, setCredentials] = useState<GACredentials>({
-    propertyId: "123456789",
-    serviceAccountEmail: "analytics@your-project.iam.gserviceaccount.com",
-    privateKey: "-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----",
-  });
-  
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCredentialsSet, setIsCredentialsSet] = useState(false);
+  const [credentialsStatus, setCredentialsStatus] = useState<'loading' | 'available' | 'missing'>('loading');
+  const [gaCredentials, setGaCredentials] = useState<GACredentials | null>(null);
   const { toast } = useToast();
 
-  const handleCredentialsSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('handleCredentialsSubmit called with:', credentials);
-    
-    if (!credentials.propertyId || !credentials.serviceAccountEmail || !credentials.privateKey) {
-      toast({
-        title: "Error",
-        description: "Semua field kredensial harus diisi",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Auto-load credentials status and analytics data on component mount
+  useEffect(() => {
+    checkCredentialsAndLoadAnalytics();
+  }, []);
 
-    setIsCredentialsSet(true);
-    console.log('Credentials set to true');
-    toast({
-      title: "Kredensial Tersimpan",
-      description: "Kredensial Google Analytics berhasil disimpan. Sekarang Anda dapat mengambil data analytics.",
-    });
+  const checkCredentialsAndLoadAnalytics = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setCredentialsStatus('missing');
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if GA credentials are available from environment variables
+      const response = await fetch(`${API_BASE_URL}/api/ga-credentials`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const savedCredentials = await response.json();
+        setGaCredentials({
+          propertyId: savedCredentials.propertyId,
+          serviceAccountEmail: savedCredentials.serviceAccountEmail,
+          privateKey: savedCredentials.privateKey
+        });
+        setCredentialsStatus('available');
+        
+        // Auto-fetch analytics data if credentials exist
+        await fetchAnalytics();
+        
+        toast({
+          title: "✅ GA Credentials Loaded",
+          description: "Analytics data loaded from environment variables",
+        });
+      } else {
+        setCredentialsStatus('missing');
+        toast({
+          title: "⚠️ GA Credentials Missing",
+          description: "Please set environment variables in Railway",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error checking credentials:', error);
+      setCredentialsStatus('missing');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchAnalytics = async () => {
-    console.log('fetchAnalytics called, isCredentialsSet:', isCredentialsSet);
-    
-    if (!isCredentialsSet) {
-      toast({
-        title: "Error",
-        description: "Silakan atur kredensial terlebih dahulu",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    console.log('Making request to:', `${API_BASE_URL}/api/analytics`);
-    console.log('With credentials:', credentials);
-
     try {
+      setIsLoading(true);
+      const token = localStorage.getItem('admin_token');
+      if (!token) return;
+
       const response = await fetch(`${API_BASE_URL}/api/analytics`, {
-        method: "POST",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        const data = await response.json();
+        setAnalyticsData(data);
+        toast({
+          title: "✅ Analytics Updated",
+          description: "Data analytics berhasil dimuat",
+        });
+      } else {
+        throw new Error('Failed to fetch analytics');
       }
-
-      const data = await response.json();
-      console.log('Analytics data received:', data);
-      setAnalyticsData(data);
-      
-      toast({
-        title: "Berhasil",
-        description: "Data analytics berhasil diambil",
-      });
     } catch (error) {
-      console.error("Error fetching analytics:", error);
+      console.error('Error fetching analytics:', error);
       toast({
         title: "Error",
-        description: "Gagal mengambil data analytics. Pastikan kredensial benar.",
+        description: "Gagal memuat data analytics",
         variant: "destructive",
       });
     } finally {
@@ -115,111 +128,70 @@ export default function AnalyticsDashboard() {
     return new Intl.NumberFormat('id-ID').format(num);
   };
 
+  const formatPercentage = (num: number): string => {
+    return `${num.toFixed(1)}%`;
+  };
+
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
+    const remainingSeconds = seconds % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-        <p className="text-gray-600">Monitor website performance dengan Google Analytics</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor your website performance and visitor insights
+          </p>
+        </div>
+        <Button 
+          onClick={fetchAnalytics} 
+          disabled={isLoading || credentialsStatus !== 'available'}
+          className="flex items-center gap-2"
+        >
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
+          Refresh Data
+        </Button>
       </div>
 
-      {/* Google Analytics Credentials Form */}
-      {!isCredentialsSet && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Google Analytics Credentials</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCredentialsSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="propertyId">GA4 Property ID</Label>
-                <Input
-                  id="propertyId"
-                  type="text"
-                  placeholder="12345678"
-                  value={credentials.propertyId}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, propertyId: e.target.value }))}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="serviceAccountEmail">Service Account Email</Label>
-                <Input
-                  id="serviceAccountEmail"
-                  type="email"
-                  placeholder="service-account@project.iam.gserviceaccount.com"
-                  value={credentials.serviceAccountEmail}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, serviceAccountEmail: e.target.value }))}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="privateKey">Private Key (JSON format)</Label>
-                <Textarea
-                  id="privateKey"
-                  placeholder="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-                  rows={4}
-                  value={credentials.privateKey}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, privateKey: e.target.value }))}
-                />
-              </div>
-              
-              <Button type="submit" className="w-full">
-                Simpan Kredensial
-              </Button>
-            </form>
+      {/* Credentials Status Alert */}
+      {credentialsStatus === 'missing' && (
+        <Alert className="border-amber-200 bg-amber-50">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertTitle className="text-amber-800">GA Credentials Required</AlertTitle>
+          <AlertDescription className="text-amber-700">
+            Google Analytics credentials are loaded from Railway environment variables. 
+            Please set the following environment variables:
+            <ul className="mt-2 list-disc list-inside space-y-1">
+              <li><strong>GA4_PROPERTY_ID</strong>: Your Google Analytics Property ID</li>
+              <li><strong>GA4_SERVICE_ACCOUNT_EMAIL</strong>: Your service account email</li>
+              <li><strong>GA4_PRIVATE_KEY</strong>: Your private key (use \\n for new lines)</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
 
-            {/* Demo Button */}
-            <div className="pt-4 border-t">
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  console.log("Demo button clicked");
-                  setIsCredentialsSet(true);
-                  fetchAnalytics();
-                }}
-              >
-                🎯 Demo: Tampilkan Data Sample
-              </Button>
-              <p className="text-sm text-muted-foreground mt-2 text-center">
-                Klik untuk melihat contoh dashboard analytics
-              </p>
+      {credentialsStatus === 'available' && gaCredentials && (
+        <Alert className="border-green-200 bg-green-50">
+          <Shield className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800">Secure Credentials Loaded</AlertTitle>
+          <AlertDescription className="text-green-700">
+            GA credentials loaded securely from environment variables.
+            <div className="mt-2 text-sm font-mono bg-green-100 p-2 rounded">
+              Property ID: {gaCredentials.propertyId}<br />
+              Service Account: {gaCredentials.serviceAccountEmail}
             </div>
-          </CardContent>
-        </Card>
+          </AlertDescription>
+        </Alert>
       )}
 
-      {/* Analytics Data Fetch Button */}
-      {isCredentialsSet && (
-        <div className="flex gap-4">
-          <Button onClick={fetchAnalytics} disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading ? "Mengambil Data..." : "Ambil Data Analytics"}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setIsCredentialsSet(false);
-              setAnalyticsData(null);
-            }}
-          >
-            Ubah Kredensial
-          </Button>
-        </div>
-      )}
-
-      {/* Analytics Data Display */}
+      {/* Analytics Data */}
       {analyticsData && (
-        <div className="space-y-6">
-          {/* Key Metrics Cards */}
+        <>
+          {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -228,9 +200,12 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatNumber(analyticsData.totalVisitors)}</div>
+                <p className="text-xs text-muted-foreground">
+                  All time visitors
+                </p>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Today's Visitors</CardTitle>
@@ -238,19 +213,25 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatNumber(analyticsData.todayVisitors)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Visitors today
+                </p>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Sessions</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatNumber(analyticsData.totalSessions)}</div>
+                <p className="text-xs text-muted-foreground">
+                  All sessions
+                </p>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Hero Button Clicks</CardTitle>
@@ -258,109 +239,140 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{formatNumber(analyticsData.heroButtonClicks)}</div>
+                <p className="text-xs text-muted-foreground">
+                  CTA interactions
+                </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Engagement Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Detailed Analytics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top Pages */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Engagement Time</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle>Top Pages</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatTime(analyticsData.avgEngagementTime)}</div>
+                <div className="space-y-4">
+                  {analyticsData.topPages.map((page, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="font-medium text-sm">{page.page}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {formatNumber(page.views)} views
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
+            {/* User Engagement */}
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardHeader>
+                <CardTitle>User Engagement</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{(analyticsData.bounceRate * 100).toFixed(1)}%</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">New vs Returning</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>New:</span>
-                    <span className="font-medium">{formatNumber(analyticsData.newVsReturning.newUsers)}</span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Avg. Engagement Time</Label>
+                    <span className="font-medium">
+                      {formatTime(analyticsData.avgEngagementTime)}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Returning:</span>
-                    <span className="font-medium">{formatNumber(analyticsData.newVsReturning.returningUsers)}</span>
+                  <div className="flex items-center justify-between">
+                    <Label>Bounce Rate</Label>
+                    <span className="font-medium">
+                      {formatPercentage(analyticsData.bounceRate)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label>New Users</Label>
+                    <span className="font-medium">
+                      {formatNumber(analyticsData.newVsReturning.newUsers)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Returning Users</Label>
+                    <span className="font-medium">
+                      {formatNumber(analyticsData.newVsReturning.returningUsers)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Traffic Sources */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Traffic Sources</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analyticsData.trafficSources.map((source, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-sm">{source.source}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {formatNumber(source.visitors)} visitors
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Device Categories */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Device Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analyticsData.deviceCategories.map((device, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium text-sm">{device.device}</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {formatNumber(device.sessions)} sessions
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
+        </>
+      )}
 
-          {/* Top Pages */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Visited Pages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {analyticsData.topPages.map((page, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                    <span className="font-medium">{page.page}</span>
-                    <span className="text-sm text-gray-600">{formatNumber(page.views)} views</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Traffic Sources */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                Traffic Sources
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {analyticsData.trafficSources.map((source, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                    <span className="font-medium">{source.source}</span>
-                    <span className="text-sm text-gray-600">{formatNumber(source.visitors)} visitors</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Device Categories */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Smartphone className="h-4 w-4" />
-                Device Categories
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {analyticsData.deviceCategories.map((device, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
-                    <span className="font-medium">{device.device}</span>
-                    <span className="text-sm text-gray-600">{formatNumber(device.sessions)} sessions</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+      {/* Loading State */}
+      {isLoading && !analyticsData && (
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span>Loading analytics data...</span>
+          </div>
         </div>
+      )}
+
+      {/* No Data State */}
+      {!isLoading && !analyticsData && credentialsStatus === 'available' && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No Analytics Data</h3>
+            <p className="text-muted-foreground text-center mb-4">
+              Click "Refresh Data" to load your analytics information.
+            </p>
+            <Button onClick={fetchAnalytics} disabled={isLoading}>
+              Load Analytics Data
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

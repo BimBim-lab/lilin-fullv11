@@ -111,6 +111,15 @@ export const adminCredentials = pgTable("admin_credentials", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const gaCredentials = pgTable("ga_credentials", {
+  id: serial("id").primaryKey(),
+  propertyId: varchar("property_id", { length: 255 }).notNull(),
+  serviceAccountEmail: varchar("service_account_email", { length: 500 }).notNull(),
+  privateKey: text("private_key").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -162,6 +171,12 @@ export const insertAdminCredentialsSchema = createInsertSchema(adminCredentials)
   updatedAt: true,
 });
 
+export const insertGACredentialsSchema = createInsertSchema(gaCredentials).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
@@ -182,3 +197,5 @@ export type Gallery = typeof gallery.$inferSelect;
 export type InsertGallery = z.infer<typeof insertGallerySchema>;
 export type AdminCredentials = typeof adminCredentials.$inferSelect;
 export type InsertAdminCredentials = z.infer<typeof insertAdminCredentialsSchema>;
+export type GACredentials = typeof gaCredentials.$inferSelect;
+export type InsertGACredentials = z.infer<typeof insertGACredentialsSchema>;

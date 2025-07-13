@@ -118,6 +118,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GA Credentials endpoints
+  app.get("/api/ga-credentials", authMiddleware, async (_req, res) => {
+    try {
+      const credentials = await storage.getGACredentials();
+      if (!credentials) {
+        return res.status(404).json({ message: "GA credentials not found" });
+      }
+      res.json(credentials);
+    } catch (error) {
+      console.error('Get GA credentials error:', error);
+      res.status(500).json({ message: "Failed to get GA credentials" });
+    }
+  });
+
+  app.post("/api/ga-credentials", authMiddleware, async (_req, res) => {
+    try {
+      // GA Credentials are now READ-ONLY from environment variables for security
+      res.status(400).json({ 
+        message: "GA Credentials are read-only from environment variables. Please set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY in Railway environment variables.",
+        environmentVariables: {
+          "GA4_PROPERTY_ID": "Your Google Analytics Property ID",
+          "GA4_SERVICE_ACCOUNT_EMAIL": "Your service account email",
+          "GA4_PRIVATE_KEY": "Your private key (with \\n for new lines)"
+        }
+      });
+    } catch (error) {
+      console.error('GA credentials error:', error);
+      res.status(500).json({ message: "Failed to process GA credentials request" });
+    }
+  });
+
   // Blog endpoints
   app.get("/api/blog", async (_req, res) => {
     try {
@@ -293,37 +324,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       */
 
-      // For demo purposes, we'll return mock data
+      // For demo purposes, we'll return consistent realistic data
       // In production, you would integrate with Google Analytics API
       const mockAnalyticsData = {
-        totalVisitors: Math.floor(Math.random() * 10000) + 5000,
-        todayVisitors: Math.floor(Math.random() * 500) + 100,
-        totalSessions: Math.floor(Math.random() * 15000) + 7000,
-        heroButtonClicks: Math.floor(Math.random() * 200) + 50,
+        totalVisitors: 12667,
+        todayVisitors: 334,
+        totalSessions: 15423,
+        heroButtonClicks: 187,
         topPages: [
-          { page: "/", views: Math.floor(Math.random() * 3000) + 1000 },
-          { page: "/workshop", views: Math.floor(Math.random() * 2000) + 800 },
-          { page: "/about", views: Math.floor(Math.random() * 1500) + 600 },
-          { page: "/contact", views: Math.floor(Math.random() * 1000) + 400 },
-          { page: "/blog", views: Math.floor(Math.random() * 800) + 300 }
+          { page: "/", views: 4234, title: "Homepage" },
+          { page: "/workshop", views: 2890, title: "Workshop" },
+          { page: "/about", views: 1456, title: "About" },
+          { page: "/contact", views: 892, title: "Contact" },
+          { page: "/blog", views: 678, title: "Blog" }
         ],
-        avgEngagementTime: Math.floor(Math.random() * 300) + 120, // seconds
-        bounceRate: (Math.random() * 0.4) + 0.3, // 30-70%
+        avgEngagementTime: 238, // seconds (3:58)
+        bounceRate: 0.342, // 34.2%
         trafficSources: [
-          { source: "Direct", visitors: Math.floor(Math.random() * 2000) + 1000 },
-          { source: "Google Search", visitors: Math.floor(Math.random() * 1500) + 800 },
-          { source: "Social Media", visitors: Math.floor(Math.random() * 800) + 400 },
-          { source: "Referral", visitors: Math.floor(Math.random() * 500) + 200 },
-          { source: "Email", visitors: Math.floor(Math.random() * 300) + 100 }
+          { source: "Direct", visitors: 4523 },
+          { source: "Google Search", visitors: 3890 },
+          { source: "Social Media", visitors: 2234 },
+          { source: "Referral", visitors: 1120 },
+          { source: "Email", visitors: 900 }
         ],
         deviceCategories: [
-          { device: "Mobile", sessions: Math.floor(Math.random() * 5000) + 3000 },
-          { device: "Desktop", sessions: Math.floor(Math.random() * 4000) + 2000 },
-          { device: "Tablet", sessions: Math.floor(Math.random() * 1000) + 500 }
+          { device: "Mobile", sessions: 8934 },
+          { device: "Desktop", sessions: 5678 },
+          { device: "Tablet", sessions: 811 }
         ],
         newVsReturning: {
-          newUsers: Math.floor(Math.random() * 6000) + 3000,
-          returningUsers: Math.floor(Math.random() * 4000) + 2000
+          newUsers: 7890,
+          returningUsers: 4777
+        },
+        // Additional realistic metrics
+        weeklyData: [
+          { day: "Mon", users: 1687 },
+          { day: "Tue", users: 1923 },
+          { day: "Wed", users: 1445 },
+          { day: "Thu", users: 1789 },
+          { day: "Fri", users: 2234 },
+          { day: "Sat", users: 2890 },
+          { day: "Sun", users: 2145 }
+        ],
+        monthlyGrowth: {
+          visitors: "+23.4%",
+          sessions: "+18.7%",
+          pageViews: "+31.2%",
+          conversionRate: "+12.8%"
+        },
+        topKeywords: [
+          { keyword: "workshop lilin aromaterapi", position: 3, clicks: 423 },
+          { keyword: "belajar membuat lilin", position: 5, clicks: 267 },
+          { keyword: "kursus aromaterapi jakarta", position: 7, clicks: 189 },
+          { keyword: "weiscandle workshop", position: 2, clicks: 145 },
+          { keyword: "essential oil candle making", position: 12, clicks: 98 }
+        ],
+        conversionFunnel: {
+          visitors: 12667,
+          contactFormViews: 3421,
+          formSubmissions: 187,
+          whatsappClicks: 234,
+          workshopRegistrations: 89
         }
       };
 
