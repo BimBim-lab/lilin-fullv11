@@ -277,127 +277,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics endpoint
-  app.post("/api/analytics", async (req, res) => {
+  // Analytics endpoint - GET method using environment variables
+  app.get("/api/analytics", authMiddleware, async (_req, res) => {
     try {
-      const { propertyId, serviceAccountEmail, privateKey } = req.body;
+      // Get GA credentials from storage (which loads from environment variables)
+      const gaCredentials = await storage.getGACredentials();
       
-      // Validate required fields
-      if (!propertyId || !serviceAccountEmail || !privateKey) {
+      if (!gaCredentials) {
         return res.status(400).json({ 
-          message: "Missing required fields: propertyId, serviceAccountEmail, privateKey" 
+          message: "GA credentials not configured. Please set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY environment variables." 
         });
       }
 
       // TODO: For production, integrate with Google Analytics Reporting API
-      // 1. Install Google Analytics Data API: npm install @google-analytics/data
-      // 2. Setup service account credentials
-      // 3. Use the following code structure:
-      /*
-      import { BetaAnalyticsDataClient } from '@google-analytics/data';
-      
-      const analyticsDataClient = new BetaAnalyticsDataClient({
-        credentials: {
-          client_email: serviceAccountEmail,
-          private_key: privateKey.replace(/\\n/g, '\n'),
-        }
-      });
-
-      const [response] = await analyticsDataClient.runReport({
-        property: `properties/${propertyId}`,
-        dateRanges: [
-          {
-            startDate: '30daysAgo',
-            endDate: 'today',
-          },
-        ],
-        dimensions: [
-          {
-            name: 'city',
-          },
-        ],
-        metrics: [
-          {
-            name: 'activeUsers',
-          },
-        ],
-      });
-      */
-
-      // For demo purposes, we'll return consistent realistic data
-      // In production, you would integrate with Google Analytics API
+      // For now, return consistent mock data for development
       const mockAnalyticsData = {
         totalVisitors: 12667,
         todayVisitors: 334,
-        totalSessions: 15423,
-        heroButtonClicks: 187,
+        totalSessions: 8934,
+        heroButtonClicks: 456,
         topPages: [
-          { page: "/", views: 4234, title: "Homepage" },
-          { page: "/workshop", views: 2890, title: "Workshop" },
-          { page: "/about", views: 1456, title: "About" },
-          { page: "/contact", views: 892, title: "Contact" },
-          { page: "/blog", views: 678, title: "Blog" }
+          { page: "/", views: 3456 },
+          { page: "/workshop", views: 2134 },
+          { page: "/about", views: 1876 },
+          { page: "/contact", views: 1234 },
+          { page: "/blog", views: 987 }
         ],
-        avgEngagementTime: 238, // seconds (3:58)
-        bounceRate: 0.342, // 34.2%
+        avgEngagementTime: 145, // seconds
+        bounceRate: 34.5, // percentage
         trafficSources: [
-          { source: "Direct", visitors: 4523 },
-          { source: "Google Search", visitors: 3890 },
-          { source: "Social Media", visitors: 2234 },
-          { source: "Referral", visitors: 1120 },
-          { source: "Email", visitors: 900 }
+          { source: "Direct", visitors: 4567 },
+          { source: "Google Search", visitors: 3456 },
+          { source: "Social Media", visitors: 2345 },
+          { source: "Email Marketing", visitors: 1234 },
+          { source: "Referrals", visitors: 567 }
         ],
         deviceCategories: [
-          { device: "Mobile", sessions: 8934 },
-          { device: "Desktop", sessions: 5678 },
-          { device: "Tablet", sessions: 811 }
+          { device: "Mobile", sessions: 5234 },
+          { device: "Desktop", sessions: 2456 },
+          { device: "Tablet", sessions: 1244 }
         ],
         newVsReturning: {
-          newUsers: 7890,
-          returningUsers: 4777
-        },
-        // Additional realistic metrics
-        weeklyData: [
-          { day: "Mon", users: 1687 },
-          { day: "Tue", users: 1923 },
-          { day: "Wed", users: 1445 },
-          { day: "Thu", users: 1789 },
-          { day: "Fri", users: 2234 },
-          { day: "Sat", users: 2890 },
-          { day: "Sun", users: 2145 }
-        ],
-        monthlyGrowth: {
-          visitors: "+23.4%",
-          sessions: "+18.7%",
-          pageViews: "+31.2%",
-          conversionRate: "+12.8%"
-        },
-        topKeywords: [
-          { keyword: "workshop lilin aromaterapi", position: 3, clicks: 423 },
-          { keyword: "belajar membuat lilin", position: 5, clicks: 267 },
-          { keyword: "kursus aromaterapi jakarta", position: 7, clicks: 189 },
-          { keyword: "weiscandle workshop", position: 2, clicks: 145 },
-          { keyword: "essential oil candle making", position: 12, clicks: 98 }
-        ],
-        conversionFunnel: {
-          visitors: 12667,
-          contactFormViews: 3421,
-          formSubmissions: 187,
-          whatsappClicks: 234,
-          workshopRegistrations: 89
+          newUsers: 7456,
+          returningUsers: 5211
         }
       };
 
-      console.log('Analytics data requested for property:', propertyId);
-      console.log('Service account:', serviceAccountEmail);
-      
       res.json(mockAnalyticsData);
     } catch (error) {
-      console.error('Error fetching analytics data:', error);
+      console.error('Analytics error:', error);
       res.status(500).json({ message: "Failed to fetch analytics data" });
     }
   });
-
   // Contact Info endpoints
   app.get("/api/contact-info", async (_req, res) => {
     try {
