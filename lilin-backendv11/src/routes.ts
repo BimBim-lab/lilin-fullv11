@@ -311,7 +311,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json(analyticsData);
         return;
       } catch (gaError) {
-        console.warn('⚠️ Real GA API failed, using realistic demo data:', gaError.message);
+        const errorMessage = gaError instanceof Error ? gaError.message : String(gaError);
+        console.warn('⚠️ Real GA API failed, using realistic demo data:', errorMessage);
         
         // Fallback to realistic demo data that looks like real analytics
         const demoData = {
