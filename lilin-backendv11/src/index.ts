@@ -17,6 +17,8 @@ const allowedOrigins = process.env.NODE_ENV === "production"
       "https://lilin-fullv11.vercel.app",
       "https://lilin-fullv11-git-main-bimbim-labs-projects.vercel.app",
       "https://lilin-fullv11-bimbim-labs-projects.vercel.app",
+      "https://www.lilinaromaterapi.com",
+      "https://lilinaromaterapi.com",
       ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [])
     ]
   : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:5173"];
