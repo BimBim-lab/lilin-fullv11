@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RefreshCw, Loader2 } from "lucide-react";
 import { type Product, ContactInfo } from "@/shared/schema";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -22,6 +23,8 @@ interface ExportProps {
 export default function Export({ productCategories }: ExportProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
 
   // Fetch contact info for WhatsApp, email, and phone integration
   const { data: contactInfo } = useQuery<ContactInfo>({
@@ -36,18 +39,32 @@ export default function Export({ productCategories }: ExportProps) {
   });
 
   // Fetch products from backend
-  const fetchProducts = async () => {
+  const fetchProducts = async (isManualRefresh = false) => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/products');
+      if (isManualRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      
+      console.log('Fetching products from:', `${API_BASE_URL}/api/products`);
+      const response = await fetch(`${API_BASE_URL}/api/products`);
+      
       if (response.ok) {
         const data = await response.json();
-        setProducts(data.filter((p: Product) => p.status === 'active')); // Only show active products
+        console.log('Received products data:', data);
+        const activeProducts = data.filter((p: Product) => p.status === 'active');
+        console.log('Active products:', activeProducts);
+        setProducts(activeProducts);
+        setLastUpdated(new Date().toLocaleTimeString());
+      } else {
+        console.error('Failed to fetch products:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -55,8 +72,8 @@ export default function Export({ productCategories }: ExportProps) {
     document.title = "Export & Wholesale - WeisCandle Aromaterapi";
     fetchProducts();
 
-    // Auto-refresh products every 10 seconds to catch changes from admin dashboard
-    const interval = setInterval(fetchProducts, 10000);
+    // Auto-refresh products every 30 seconds to catch changes from admin dashboard
+    const interval = setInterval(() => fetchProducts(), 30000);
 
     // Listen for focus events to refresh when user comes back to tab
     const handleFocus = () => {
@@ -139,14 +156,45 @@ export default function Export({ productCategories }: ExportProps) {
     "Organic Certification"
   ];
 
+  // Manual refresh function
+  const handleRefresh = () => {
+    fetchProducts(true);
+  };
+
   return (
     <div className="min-h-screen py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-6">
-            Export & Wholesale
-          </h1>
+          <div className="flex items-center justify-center mb-4">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-charcoal">
+              Export & Wholesale
+            </h1>
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+              className="ml-4"
+            >
+              {refreshing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </>
+              )}
+            </Button>
+          </div>
+          {lastUpdated && (
+            <p className="text-sm text-gray-500 mb-4">
+              Data terakhir diperbarui: {lastUpdated}
+            </p>
+          )}
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Partner dengan WeisCandle untuk kebutuhan aromaterapi skala besar. Kami menyediakan 
             produk berkualitas tinggi dengan layanan export profesional ke seluruh dunia.
