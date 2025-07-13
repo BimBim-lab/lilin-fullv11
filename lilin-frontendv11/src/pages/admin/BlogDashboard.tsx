@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { type BlogPost, type InsertBlogPost } from "@/shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function BlogDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -38,7 +40,7 @@ export default function BlogDashboard() {
   const loadArticles = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/blog');
+      const response = await fetch(`${API_BASE_URL}/api/blog`);
       if (response.ok) {
         const data = await response.json();
         setArticles(data);
@@ -132,19 +134,21 @@ export default function BlogDashboard() {
       let response;
       if (editingArticle) {
         // Update existing article
-        response = await fetch(`/api/blog/${editingArticle.id}`, {
+        response = await fetch(`${API_BASE_URL}/api/blog/${editingArticle.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           },
           body: JSON.stringify(newArticle),
         });
       } else {
         // Create new article
-        response = await fetch('/api/blog', {
+        response = await fetch(`${API_BASE_URL}/api/blog`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           },
           body: JSON.stringify(newArticle),
         });
@@ -186,8 +190,11 @@ export default function BlogDashboard() {
 
   const handleDeleteArticle = async (articleId: number) => {
     try {
-      const response = await fetch(`/api/blog/${articleId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/blog/${articleId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        },
       });
 
       if (!response.ok) {

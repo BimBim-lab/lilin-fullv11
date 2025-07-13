@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Edit3, Trash2, Save, X, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface WorkshopPackage {
   id?: number;
   name: string;
@@ -73,8 +75,8 @@ export default function WorkshopDashboard() {
       setIsLoading(true);
       
       const [packagesResponse, curriculumResponse] = await Promise.all([
-        fetch('/api/workshop/packages'),
-        fetch('/api/workshop/curriculum')
+        fetch(`${API_BASE_URL}/api/workshop/packages`),
+        fetch(`${API_BASE_URL}/api/workshop/curriculum`)
       ]);
       
       if (packagesResponse.ok) {
@@ -103,9 +105,12 @@ export default function WorkshopDashboard() {
       setIsSaving(true);
       
       const [packagesResponse, curriculumResponse] = await Promise.all([
-        fetch('/api/workshop/packages', {
+        fetch(`${API_BASE_URL}/api/workshop/packages`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          },
           body: JSON.stringify(packages.map(pkg => ({
             name: pkg.name,
             description: pkg.description,
@@ -115,9 +120,12 @@ export default function WorkshopDashboard() {
             isPopular: pkg.isPopular,
           }))),
         }),
-        fetch('/api/workshop/curriculum', {
+        fetch(`${API_BASE_URL}/api/workshop/curriculum`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          },
           body: JSON.stringify(curriculum.map(curr => ({
             step: curr.step,
             title: curr.title,

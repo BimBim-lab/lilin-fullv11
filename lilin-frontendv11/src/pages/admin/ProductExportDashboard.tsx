@@ -11,6 +11,8 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { type Product, type InsertProduct } from "@/shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function ProductExportDashboard() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,7 +69,7 @@ export default function ProductExportDashboard() {
   const loadProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       if (response.ok) {
         const data = await response.json();
         setProducts(data);
@@ -89,10 +91,11 @@ export default function ProductExportDashboard() {
   const saveProducts = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
         },
         body: JSON.stringify(products.map(product => {
           const { id, updatedAt, ...productData } = product;
@@ -182,10 +185,11 @@ export default function ProductExportDashboard() {
       setIsDialogOpen(false);
 
       // Immediately sync to backend
-      const response = await fetch('/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
         },
         body: JSON.stringify(updatedProducts.map(product => {
           const { id, updatedAt, ...productData } = product;
@@ -307,10 +311,11 @@ export default function ProductExportDashboard() {
       setProducts(updatedProducts);
 
       // Immediately sync to backend
-      const response = await fetch('/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
         },
         body: JSON.stringify(updatedProducts.map(product => {
           const { id, updatedAt, ...productData } = product;

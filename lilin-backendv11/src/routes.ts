@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Blog CRUD endpoints
-  app.post("/api/blog", async (req, res) => {
+  app.post("/api/blog", authMiddleware, async (req: any, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       const blogPost = await storage.createBlogPost(validatedData);
@@ -112,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/blog/:id", async (req, res) => {
+  app.put("/api/blog/:id", authMiddleware, async (req: any, res) => {
     try {
       const { id } = req.params;
       const validatedData = insertBlogPostSchema.parse(req.body);
@@ -134,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/blog/:id", async (req, res) => {
+  app.delete("/api/blog/:id", authMiddleware, async (req: any, res) => {
     try {
       const { id } = req.params;
       const success = await storage.deleteBlogPost(parseInt(id));
@@ -329,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/hero", async (req, res) => {
+  app.post("/api/hero", authMiddleware, async (req: any, res) => {
     try {
       console.log('Received hero data:', req.body);
       const heroData = req.body;
@@ -355,7 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // File upload endpoint
-  app.post("/api/upload", (req, res) => {
+  app.post("/api/upload", authMiddleware, (req: any, res) => {
     const upload = req.app.locals.upload;
     
     upload.single('image')(req, res, (err: any) => {
@@ -397,7 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/workshop/packages", async (req, res) => {
+  app.post("/api/workshop/packages", authMiddleware, async (req: any, res) => {
     try {
       console.log('Received workshop packages:', req.body);
       const packages = req.body;
@@ -430,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/workshop/curriculum", async (req, res) => {
+  app.post("/api/workshop/curriculum", authMiddleware, async (req: any, res) => {
     try {
       console.log('Received workshop curriculum:', req.body);
       const curriculum = req.body;
@@ -464,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/products", async (req, res) => {
+  app.post("/api/products", authMiddleware, async (req: any, res) => {
     try {
       console.log('Received products:', req.body);
       const products = req.body;

@@ -8,6 +8,8 @@ import { Edit3, Eye, Save, Upload, Image, Loader2, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface HeroData {
   title1: string;
   title2: string;
@@ -48,8 +50,7 @@ export default function HeroDashboard() {
   const loadHeroData = async () => {
     setIsLoading(true);
     try {
-      // Use proxy path since we're in development mode
-      const response = await fetch('/api/hero');
+      const response = await fetch(`${API_BASE_URL}/api/hero`);
       if (response.ok) {
         const data = await response.json();
         setHeroData(data);
@@ -120,8 +121,11 @@ export default function HeroDashboard() {
     
     setIsUploading(true);
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        },
         body: formData
       });
       
@@ -164,10 +168,11 @@ export default function HeroDashboard() {
         }
       }
 
-      const response = await fetch('/api/hero', {
+      const response = await fetch(`${API_BASE_URL}/api/hero`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
         },
         body: JSON.stringify(dataToSave),
       });
