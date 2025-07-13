@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -34,6 +34,9 @@ export interface IStorage {
   updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined>;
   deleteGallery(id: number): Promise<boolean>;
   getHighlightedGallery(): Promise<Gallery[]>;
+  
+  getAdminCredentials(): Promise<AdminCredentials>;
+  updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials>;
 }
 
 export class MemStorage implements IStorage {
@@ -46,6 +49,7 @@ export class MemStorage implements IStorage {
   private workshopCurriculum: WorkshopCurriculum[];
   private products: Product[];
   private gallery: Gallery[];
+  private adminCredentials: AdminCredentials;
   private currentUserId: number;
   private currentBlogPostId: number;
   private currentContactId: number;
@@ -249,6 +253,14 @@ export class MemStorage implements IStorage {
       instagram: "@weiscandle_official",
       facebook: "WeisCandle Indonesia",
       tiktok: "@weiscandle",
+      updatedAt: new Date()
+    };
+    
+    // Initialize admin credentials with default values
+    this.adminCredentials = {
+      id: 1,
+      email: "admin@weiscandle.com",
+      password: "$2a$10$N9qo8uLOickgx2ZMRZoMye.36pnM2PQpY2xBxJLQG7G1F1GGxh2EG", // "admin123" hashed
       updatedAt: new Date()
     };
     
@@ -634,6 +646,19 @@ export class MemStorage implements IStorage {
       .filter(item => item.isHighlighted)
       .sort((a, b) => (a.order || 0) - (b.order || 0))
       .slice(0, 3);
+  }
+
+  async getAdminCredentials(): Promise<AdminCredentials> {
+    return this.adminCredentials;
+  }
+
+  async updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials> {
+    this.adminCredentials = {
+      ...this.adminCredentials,
+      ...credentials,
+      updatedAt: new Date()
+    };
+    return this.adminCredentials;
   }
 }
 

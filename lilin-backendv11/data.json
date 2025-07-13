@@ -11,7 +11,7 @@
         "excerpt": "Pelajari bagaimana aromaterapi dapat membantu meningkatkan kesehatan mental dan mengurangi stres dalam kehidupan sehari-hari.",
         "imageUrl": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
         "featured": false,
-        "publishedAt": "2025-07-13T07:41:55.739Z"
+        "publishedAt": "2025-07-13T10:36:21.482Z"
       }
     ],
     [
@@ -24,7 +24,7 @@
         "excerpt": "Panduan lengkap untuk memilih essential oil berkualitas tinggi sesuai dengan kebutuhan aromaterapi Anda.",
         "imageUrl": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
         "featured": true,
-        "publishedAt": "2025-07-13T07:41:55.739Z"
+        "publishedAt": "2025-07-13T10:36:21.482Z"
       }
     ],
     [
@@ -37,7 +37,7 @@
         "excerpt": "Jelajahi sejarah menarik pembuatan lilin dari zaman kuno hingga teknik modern yang digunakan saat ini.",
         "imageUrl": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
         "featured": false,
-        "publishedAt": "2025-07-13T07:41:55.739Z"
+        "publishedAt": "2025-07-13T10:36:21.482Z"
       }
     ]
   ],
@@ -53,7 +53,7 @@
     "showStats": true,
     "statsNumber": "500+",
     "statsLabel": "Peserta Puas",
-    "updatedAt": "2025-07-13T07:41:55.739Z"
+    "updatedAt": "2025-07-13T10:36:21.482Z"
   },
   "contactInfo": {
     "id": 1,
@@ -66,7 +66,7 @@
     "instagram": "@weiscandle_official",
     "facebook": "WeisCandle Indonesia",
     "tiktok": "@weiscandle",
-    "updatedAt": "2025-07-13T07:41:55.739Z"
+    "updatedAt": "2025-07-13T10:36:21.482Z"
   },
   "workshopPackages": [
     {
@@ -77,7 +77,7 @@
       "duration": "Durasi 3 jam",
       "features": "[\"Membuat 2 lilin aromaterapi\",\"Materi & tools disediakan\",\"Sertifikat keikutsertaan\"]",
       "isPopular": false,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 2,
@@ -87,7 +87,7 @@
       "duration": "Durasi 5 jam",
       "features": "[\"Membuat 4 lilin aromaterapi\",\"Teknik advanced blending\",\"Starter kit take home\",\"Konsultasi 1 bulan\"]",
       "isPopular": true,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 3,
@@ -97,7 +97,7 @@
       "duration": "Durasi 8 jam (2 hari)",
       "features": "[\"Membuat 6 lilin aromaterapi\",\"Business planning session\",\"Complete starter kit\",\"Mentoring 3 bulan\"]",
       "isPopular": false,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
   "workshopCurriculum": [
@@ -108,7 +108,7 @@
       "description": "Memahami sejarah aromaterapi, manfaat kesehatan, jenis-jenis essential oil, dan properti terapeutiknya.",
       "duration": "45 menit",
       "order": 1,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 2,
@@ -117,7 +117,7 @@
       "description": "Mengenal berbagai jenis wax (soy, beeswax, coconut), memilih wick yang tepat, dan essential oil berkualitas.",
       "duration": "30 menit",
       "order": 2,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 3,
@@ -126,7 +126,7 @@
       "description": "Mempelajari cara mencampur essential oil, menghitung persentase, dan menciptakan signature scent.",
       "duration": "60 menit",
       "order": 3,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 4,
@@ -135,7 +135,7 @@
       "description": "Praktik langsung melting wax, mixing essential oil, pouring, dan finishing dengan teknik profesional.",
       "duration": "90 menit",
       "order": 4,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 5,
@@ -144,7 +144,7 @@
       "description": "Memahami standar kualitas, troubleshooting masalah umum, dan tips untuk hasil optimal.",
       "duration": "30 menit",
       "order": 5,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 6,
@@ -153,7 +153,7 @@
       "description": "Teknik packaging yang menarik, labeling produk, dan strategi branding untuk penjualan.",
       "duration": "45 menit",
       "order": 6,
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
   "products": [
@@ -168,7 +168,7 @@
       "imageUrl": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       "description": "Lilin aromaterapi dengan essential oil lavender murni untuk relaksasi dan tidur yang nyenyak",
       "moq": "50 pcs",
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 2,
@@ -181,7 +181,7 @@
       "imageUrl": "https://images.unsplash.com/photo-1574361034536-9e0a5b05b6b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       "description": "Lilin aromaterapi eucalyptus untuk membantu pernapasan dan melegakan hidung tersumbat",
       "moq": "50 pcs",
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 3,
@@ -194,7 +194,7 @@
       "imageUrl": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       "description": "Lilin aromaterapi dengan aroma rose yang romantis dan menenangkan",
       "moq": "50 pcs",
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 4,
@@ -207,7 +207,7 @@
       "imageUrl": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
       "description": "Paket lengkap untuk membuat lilin aromaterapi sendiri di rumah",
       "moq": "20 sets",
-      "updatedAt": "2025-07-13T07:41:55.739Z"
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
   "gallery": [
@@ -219,30 +219,41 @@
       "isHighlighted": true,
       "category": "workshop",
       "order": 1,
-      "createdAt": "2025-07-13T08:10:14.050Z",
-      "updatedAt": "2025-07-13T08:10:14.050Z"
+      "createdAt": "2025-07-13T10:36:21.482Z",
+      "updatedAt": "2025-07-13T10:36:21.482Z"
+    },
+    {
+      "id": 2,
+      "title": "Essential Oil Blending",
+      "description": "Proses pencampuran essential oil untuk menciptakan aroma signature",
+      "imageUrl": "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      "isHighlighted": true,
+      "category": "workshop",
+      "order": 2,
+      "createdAt": "2025-07-13T10:36:21.482Z",
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 3,
-      "title": "Finished Productsttt",
+      "title": "Finished Products",
       "description": "Hasil karya peserta workshop yang siap untuk dibawa pulang",
       "imageUrl": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
       "isHighlighted": true,
       "category": "products",
       "order": 3,
-      "createdAt": "2025-07-13T08:10:14.050Z",
-      "updatedAt": "2025-07-13T08:36:36.845Z"
+      "createdAt": "2025-07-13T10:36:21.482Z",
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 4,
       "title": "Studio Workshop",
       "description": "Suasana studio workshop yang nyaman dan modern",
       "imageUrl": "https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      "isHighlighted": true,
+      "isHighlighted": false,
       "category": "studio",
       "order": 4,
-      "createdAt": "2025-07-13T08:10:14.050Z",
-      "updatedAt": "2025-07-13T09:44:54.752Z"
+      "createdAt": "2025-07-13T10:36:21.482Z",
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     },
     {
       "id": 5,
@@ -252,8 +263,8 @@
       "isHighlighted": false,
       "category": "workshop",
       "order": 5,
-      "createdAt": "2025-07-13T08:10:14.050Z",
-      "updatedAt": "2025-07-13T08:10:14.050Z"
+      "createdAt": "2025-07-13T10:36:21.482Z",
+      "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
   "currentUserId": 1,

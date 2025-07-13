@@ -82,6 +82,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       description: "Kelola kontak masuk"
     },
     { 
+      id: "admin", 
+      label: "Admin Settings", 
+      icon: User, 
+      path: "/admin/settings",
+      color: "text-gray-600",
+      bgColor: "bg-gray-50",
+      description: "Kelola akun admin"
+    },
+    { 
       id: "analytics", 
       label: "Analytics", 
       icon: TrendingUp, 

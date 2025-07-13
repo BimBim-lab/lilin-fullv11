@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -36,6 +36,9 @@ export interface IStorage {
   updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined>;
   deleteGallery(id: number): Promise<boolean>;
   getHighlightedGallery(): Promise<Gallery[]>;
+  
+  getAdminCredentials(): Promise<AdminCredentials>;
+  updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials>;
 }
 
 interface StorageData {
@@ -48,6 +51,7 @@ interface StorageData {
   workshopCurriculum: WorkshopCurriculum[];
   products: Product[];
   gallery: Gallery[];
+  adminCredentials: AdminCredentials;
   currentUserId: number;
   currentBlogPostId: number;
   currentContactId: number;
@@ -80,6 +84,7 @@ export class FileStorage implements IStorage {
           workshopCurriculum: fileData.workshopCurriculum || this.getDefaultWorkshopCurriculum(),
           products: fileData.products || this.getDefaultProducts(),
           gallery: fileData.gallery || this.getDefaultGallery(),
+          adminCredentials: fileData.adminCredentials || this.getDefaultAdminCredentials(),
           currentUserId: fileData.currentUserId || 1,
           currentBlogPostId: fileData.currentBlogPostId || 1,
           currentContactId: fileData.currentContactId || 1,
@@ -135,6 +140,7 @@ export class FileStorage implements IStorage {
       workshopCurriculum: this.getDefaultWorkshopCurriculum(),
       products: this.getDefaultProducts(),
       gallery: this.getDefaultGallery(),
+      adminCredentials: this.getDefaultAdminCredentials(),
     };
     this.initializeBlogPosts();
     this.saveData();
@@ -668,6 +674,29 @@ export class FileStorage implements IStorage {
       .filter(item => item.isHighlighted)
       .sort((a, b) => (a.order || 0) - (b.order || 0))
       .slice(0, 3);
+  }
+
+  private getDefaultAdminCredentials(): AdminCredentials {
+    return {
+      id: 1,
+      email: "admin@weiscandle.com",
+      password: "$2a$10$N9qo8uLOickgx2ZMRZoMye.36pnM2PQpY2xBxJLQG7G1F1GGxh2EG", // "admin123" hashed
+      updatedAt: new Date()
+    };
+  }
+
+  async getAdminCredentials(): Promise<AdminCredentials> {
+    return this.data.adminCredentials;
+  }
+
+  async updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials> {
+    this.data.adminCredentials = {
+      ...this.data.adminCredentials,
+      ...credentials,
+      updatedAt: new Date()
+    };
+    this.saveData();
+    return this.data.adminCredentials;
   }
 }
 

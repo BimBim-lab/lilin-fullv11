@@ -9,12 +9,6 @@ import bcrypt from 'bcryptjs';
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Hardcoded admin credentials (in production, store in database with hashed password)
-  const ADMIN_CREDENTIALS = {
-    email: 'admin@weiscandle.com',
-    password: await bcrypt.hash('admin123', 10) // Hash the password
-  };
-
   // Admin Login endpoint
   app.post("/api/admin/login", async (req, res) => {
     try {
@@ -27,9 +21,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Get admin credentials from storage
+      const adminCredentials = await storage.getAdminCredentials();
+
       // Check credentials
-      const isEmailValid = email === ADMIN_CREDENTIALS.email;
-      const isPasswordValid = await bcrypt.compare(password, ADMIN_CREDENTIALS.password);
+      const isEmailValid = email === adminCredentials.email;
+      const isPasswordValid = await bcrypt.compare(password, adminCredentials.password);
 
       if (!isEmailValid || !isPasswordValid) {
         return res.status(401).json({ 
@@ -68,6 +65,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       message: "Token is valid",
       user: req.user
     });
+  });
+
+  // Get admin credentials (protected)
+  app.get("/api/admin/credentials", authMiddleware, async (_req, res) => {
+    try {
+      const credentials = await storage.getAdminCredentials();
+      // Don't send the password in response
+      res.json({
+        id: credentials.id,
+        email: credentials.email,
+        updatedAt: credentials.updatedAt
+      });
+    } catch (error) {
+      console.error('Get admin credentials error:', error);
+      res.status(500).json({ message: "Failed to get admin credentials" });
+    }
+  });
+
+  // Update admin credentials (protected)
+  app.put("/api/admin/credentials", authMiddleware, async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      // Validate input
+      if (!email || !password) {
+        return res.status(400).json({ 
+          message: "Email and password are required" 
+        });
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Update credentials
+      const updatedCredentials = await storage.updateAdminCredentials({
+        email,
+        password: hashedPassword
+      });
+
+      // Don't send the password in response
+      res.json({
+        id: updatedCredentials.id,
+        email: updatedCredentials.email,
+        updatedAt: updatedCredentials.updatedAt,
+        message: "Admin credentials updated successfully"
+      });
+
+    } catch (error) {
+      console.error('Update admin credentials error:', error);
+      res.status(500).json({ message: "Failed to update admin credentials" });
+    }
   });
 
   // Blog endpoints

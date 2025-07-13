@@ -104,6 +104,13 @@ export const gallery = pgTable("gallery", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
+export const adminCredentials = pgTable("admin_credentials", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  password: text("password").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -150,6 +157,11 @@ export const insertGallerySchema = createInsertSchema(gallery).omit({
   updatedAt: true,
 });
 
+export const insertAdminCredentialsSchema = createInsertSchema(adminCredentials).omit({
+  id: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
@@ -168,3 +180,5 @@ export type ContactInfo = typeof contactInfo.$inferSelect;
 export type InsertContactInfo = z.infer<typeof insertContactInfoSchema>;
 export type Gallery = typeof gallery.$inferSelect;
 export type InsertGallery = z.infer<typeof insertGallerySchema>;
+export type AdminCredentials = typeof adminCredentials.$inferSelect;
+export type InsertAdminCredentials = z.infer<typeof insertAdminCredentialsSchema>;
