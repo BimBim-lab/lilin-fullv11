@@ -50,7 +50,10 @@ export class FileStorage implements IStorage {
   private data!: StorageData;
 
   constructor() {
-    this.dataFile = join(process.cwd(), 'data.json');
+    // Menggunakan path yang persistent di Railway dan lokal
+    const dataDir = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.cwd();
+    this.dataFile = join(dataDir, 'data.json');
+    console.log('Data file path:', this.dataFile);
     this.loadData();
   }
 

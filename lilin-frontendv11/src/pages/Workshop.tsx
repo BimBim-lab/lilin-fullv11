@@ -45,7 +45,7 @@ export default function Workshop({
 
   const loadCurriculum = async () => {
     try {
-      const response = await fetch('/api/workshop/curriculum');
+      const response = await fetch(`${API_BASE_URL}/api/workshop/curriculum`);
       if (response.ok) {
         const data = await response.json();
         setCurriculum(data);

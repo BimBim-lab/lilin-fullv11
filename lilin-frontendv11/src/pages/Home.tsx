@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { type ContactInfo } from "@/shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface HeroData {
   title1: string;
   title2: string;
@@ -38,6 +40,13 @@ export default function Home() {
   // Fetch contact info for WhatsApp integration
   const { data: contactInfo } = useQuery<ContactInfo>({
     queryKey: ["/api/contact-info"],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/contact-info`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact info');
+      }
+      return response.json();
+    },
     retry: 1,
     staleTime: 5 * 60 * 1000,
   });
@@ -56,7 +65,7 @@ export default function Home() {
     // Fetch hero data from backend
     const fetchHeroData = async () => {
       try {
-        const response = await fetch('/api/hero');
+        const response = await fetch(`${API_BASE_URL}/api/hero`);
         if (response.ok) {
           const data = await response.json();
           console.log('Hero data received from backend:', data);

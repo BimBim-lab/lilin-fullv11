@@ -47,7 +47,7 @@ export default function SchedulePricing({
 
   const loadPackages = async () => {
     try {
-      const response = await fetch('/api/workshop/packages');
+      const response = await fetch(`${API_BASE_URL}/api/workshop/packages`);
       if (response.ok) {
         const data = await response.json();
         setPackages(data);

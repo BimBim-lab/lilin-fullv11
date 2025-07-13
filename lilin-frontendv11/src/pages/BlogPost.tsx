@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { BlogPost } from "@shared/schema";
 import { sampleBlogPosts } from "@/data/sampleBlogData";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface BlogPostPageProps {
   defaultPost?: BlogPost;
   defaultPosts?: BlogPost[];
@@ -33,6 +35,13 @@ export default function BlogPostPage({
 
   const { data: post, isLoading, error } = useQuery<BlogPost>({
     queryKey: [`/api/blog/${slug}`],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/blog/${slug}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch blog post');
+      }
+      return response.json();
+    },
     enabled: !!slug,
     retry: 1,
     staleTime: 30 * 1000, // 30 seconds for more real-time updates
@@ -42,6 +51,13 @@ export default function BlogPostPage({
 
   const { data: allPosts } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog"],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/blog`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch blog posts');
+      }
+      return response.json();
+    },
     retry: 1,
     staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
