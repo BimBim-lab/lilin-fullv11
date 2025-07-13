@@ -234,7 +234,11 @@ export default function Export({ productCategories }: ExportProps) {
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
-                onClick={() => window.open('https://wa.me/6281234567890?text=Hello%20WeisCandle%2C%20I%20am%20interested%20in%20export%20partnership', '_blank')}
+                onClick={() => {
+                  const whatsappNumber = contactInfo?.whatsapp || "+62 812-3456-7890";
+                  const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+                  window.open(`https://wa.me/${cleanNumber}?text=Hello%20WeisCandle%2C%20I%20am%20interested%20in%20export%20partnership`, '_blank');
+                }}
                 className="bg-rose-gold text-white hover:bg-charcoal"
               >
                 Request Export Catalog
@@ -309,7 +313,11 @@ export default function Export({ productCategories }: ExportProps) {
                     </div>
                     
                     <Button 
-                      onClick={() => window.open(`https://wa.me/6281234567890?text=I%20am%20interested%20in%20${category.name.replace(/\s+/g, '%20')}%20for%20export`, '_blank')}
+                      onClick={() => {
+                        const whatsappNumber = contactInfo?.whatsapp || "+62 812-3456-7890";
+                        const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+                        window.open(`https://wa.me/${cleanNumber}?text=I%20am%20interested%20in%20${category.name.replace(/\s+/g, '%20')}%20for%20export`, '_blank');
+                      }}
                       className="w-full bg-soft-pink text-charcoal hover:bg-rose-gold hover:text-white"
                     >
                       Inquire Now

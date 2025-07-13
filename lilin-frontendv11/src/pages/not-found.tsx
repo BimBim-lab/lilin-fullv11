@@ -1,12 +1,30 @@
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import type { ContactInfo } from "@/shared/schema";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 export default function NotFound() {
   useEffect(() => {
     document.title = "Halaman Tidak Ditemukan - WeisCandle";
   }, []);
+
+  // Fetch contact info for WhatsApp
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ["/api/contact-info"],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/contact-info`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact info');
+      }
+      return response.json();
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center">
@@ -104,7 +122,11 @@ export default function NotFound() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 
                   size="sm"
-                  onClick={() => window.open('https://wa.me/6281234567890?text=Halo%20WeisCandle%2C%20saya%20butuh%20bantuan', '_blank')}
+                  onClick={() => {
+                    const whatsappNumber = contactInfo?.whatsapp || "+62 812-3456-7890";
+                    const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+                    window.open(`https://wa.me/${cleanNumber}?text=Halo%20WeisCandle%2C%20saya%20butuh%20bantuan`, '_blank');
+                  }}
                   className="bg-green-500 text-white hover:bg-green-600"
                 >
                   <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
