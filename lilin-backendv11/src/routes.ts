@@ -487,6 +487,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery endpoints
+  app.get("/api/gallery", async (_req, res) => {
+    try {
+      const gallery = await storage.getGallery();
+      res.json(gallery);
+    } catch (error) {
+      console.error('Error fetching gallery:', error);
+      res.status(500).json({ message: "Failed to fetch gallery" });
+    }
+  });
+
+  app.get("/api/gallery/highlighted", async (_req, res) => {
+    try {
+      const highlightedGallery = await storage.getHighlightedGallery();
+      res.json(highlightedGallery);
+    } catch (error) {
+      console.error('Error fetching highlighted gallery:', error);
+      res.status(500).json({ message: "Failed to fetch highlighted gallery" });
+    }
+  });
+
+  app.get("/api/gallery/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const galleryItem = await storage.getGalleryById(id);
+      
+      if (!galleryItem) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json(galleryItem);
+    } catch (error) {
+      console.error('Error fetching gallery item:', error);
+      res.status(500).json({ message: "Failed to fetch gallery item" });
+    }
+  });
+
+  app.post("/api/gallery", authMiddleware, async (req: any, res) => {
+    try {
+      const galleryData = req.body;
+      const newGallery = await storage.createGallery(galleryData);
+      res.status(201).json(newGallery);
+    } catch (error) {
+      console.error('Error creating gallery item:', error);
+      res.status(500).json({ message: "Failed to create gallery item" });
+    }
+  });
+
+  app.put("/api/gallery/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const galleryData = req.body;
+      const updatedGallery = await storage.updateGallery(id, galleryData);
+      
+      if (!updatedGallery) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json(updatedGallery);
+    } catch (error) {
+      console.error('Error updating gallery item:', error);
+      res.status(500).json({ message: "Failed to update gallery item" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteGallery(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json({ message: "Gallery item deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting gallery item:', error);
+      res.status(500).json({ message: "Failed to delete gallery item" });
+    }
+  });
+
+  // Gallery endpoints
+  app.get("/api/gallery", async (_req, res) => {
+    try {
+      const gallery = await storage.getGallery();
+      res.json(gallery);
+    } catch (error) {
+      console.error('Error fetching gallery:', error);
+      res.status(500).json({ message: "Failed to fetch gallery" });
+    }
+  });
+
+  app.get("/api/gallery/highlighted", async (_req, res) => {
+    try {
+      const highlightedGallery = await storage.getHighlightedGallery();
+      res.json(highlightedGallery);
+    } catch (error) {
+      console.error('Error fetching highlighted gallery:', error);
+      res.status(500).json({ message: "Failed to fetch highlighted gallery" });
+    }
+  });
+
+  app.get("/api/gallery/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const galleryItem = await storage.getGalleryById(id);
+      
+      if (!galleryItem) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json(galleryItem);
+    } catch (error) {
+      console.error('Error fetching gallery item:', error);
+      res.status(500).json({ message: "Failed to fetch gallery item" });
+    }
+  });
+
+  app.post("/api/gallery", authMiddleware, async (req: any, res) => {
+    try {
+      const galleryData = req.body;
+      const newGallery = await storage.createGallery(galleryData);
+      res.status(201).json(newGallery);
+    } catch (error) {
+      console.error('Error creating gallery item:', error);
+      res.status(500).json({ message: "Failed to create gallery item" });
+    }
+  });
+
+  app.put("/api/gallery/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const galleryData = req.body;
+      const updatedGallery = await storage.updateGallery(id, galleryData);
+      
+      if (!updatedGallery) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json(updatedGallery);
+    } catch (error) {
+      console.error('Error updating gallery item:', error);
+      res.status(500).json({ message: "Failed to update gallery item" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", authMiddleware, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteGallery(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Gallery item not found" });
+      }
+      
+      res.json({ message: "Gallery item deleted successfully" });
+    } catch (error) {
+      console.error('Error deleting gallery item:', error);
+      res.status(500).json({ message: "Failed to delete gallery item" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

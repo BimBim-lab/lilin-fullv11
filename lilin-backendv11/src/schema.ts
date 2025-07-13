@@ -1,4 +1,4 @@
-import { pgTable, text, serial, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, boolean, timestamp, varchar, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -92,6 +92,18 @@ export const contactInfo = pgTable("contact_info", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const gallery = pgTable("gallery", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: varchar("description", { length: 500 }),
+  imageUrl: varchar("image_url", { length: 1000 }).notNull(),
+  isHighlighted: boolean("is_highlighted").default(false),
+  category: varchar("category", { length: 100 }).default("workshop"),
+  order: integer("order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -132,6 +144,12 @@ export const insertContactInfoSchema = createInsertSchema(contactInfo).omit({
   updatedAt: true,
 });
 
+export const insertGallerySchema = createInsertSchema(gallery).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type BlogPost = typeof blogPosts.$inferSelect;
@@ -148,3 +166,5 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type ContactInfo = typeof contactInfo.$inferSelect;
 export type InsertContactInfo = z.infer<typeof insertContactInfoSchema>;
+export type Gallery = typeof gallery.$inferSelect;
+export type InsertGallery = z.infer<typeof insertGallerySchema>;

@@ -79,6 +79,7 @@ export default function Footer() {
               <li><Link href="/"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Beranda</span></Link></li>
               <li><Link href="/workshop"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Workshop</span></Link></li>
               <li><Link href="/about"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Tentang Kami</span></Link></li>
+              <li><Link href="/gallery"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Gallery</span></Link></li>
               <li><Link href="/blog"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Blog</span></Link></li>
               <li><Link href="/contact"><span className="text-gray-300 hover:text-rose-gold transition-colors duration-300 cursor-pointer">Kontak</span></Link></li>
             </ul>

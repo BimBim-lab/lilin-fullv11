@@ -47,12 +47,22 @@ export const insertContactInfoSchema = z.object({
   tiktok: z.string().min(1, "TikTok wajib diisi"),
 });
 
+export const insertGallerySchema = z.object({
+  title: z.string().min(1, "Judul wajib diisi"),
+  description: z.string().optional(),
+  imageUrl: z.string().url("URL gambar tidak valid"),
+  isHighlighted: z.boolean().default(false),
+  category: z.string().default("workshop"),
+  order: z.number().default(0),
+});
+
 // Type definitions
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertContactInfo = z.infer<typeof insertContactInfoSchema>;
+export type InsertGallery = z.infer<typeof insertGallerySchema>;
 
 export type User = {
   id: number;
@@ -107,4 +117,16 @@ export type ContactInfo = {
   facebook: string;
   tiktok: string;
   updatedAt: string;
+};
+
+export type Gallery = {
+  id?: number;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  isHighlighted?: boolean;
+  category?: string;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
 };

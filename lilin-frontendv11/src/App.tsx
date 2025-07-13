@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Workshop from "@/pages/Workshop";
+import Gallery from "@/pages/Gallery";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
 import Contact from "@/pages/Contact";
@@ -16,6 +17,7 @@ import DashboardLayout from "@/pages/admin/DashboardLayout";
 import HeroDashboard from "@/pages/admin/HeroDashboard";
 import WorkshopDashboard from "@/pages/admin/WorkshopDashboard";
 import ProductExportDashboard from "@/pages/admin/ProductExportDashboard";
+import GalleryDashboard from "@/pages/admin/GalleryDashboard";
 import BlogDashboard from "@/pages/admin/BlogDashboard";
 import ContactDashboard from "@/pages/admin/ContactDashboard";
 import AnalyticsDashboard from "@/pages/admin/AnalyticsDashboard";
@@ -39,6 +41,11 @@ function Router() {
       <Route path="/workshop" component={() => (
         <Layout>
           <Workshop />
+        </Layout>
+      )} />
+      <Route path="/gallery" component={() => (
+        <Layout>
+          <Gallery />
         </Layout>
       )} />
       <Route path="/blog" component={() => (
@@ -94,6 +101,13 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <ProductExportDashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
+      )} />
+      <Route path="/admin/gallery" component={() => (
+        <ProtectedRoute>
+          <DashboardLayout>
+            <GalleryDashboard />
           </DashboardLayout>
         </ProtectedRoute>
       )} />

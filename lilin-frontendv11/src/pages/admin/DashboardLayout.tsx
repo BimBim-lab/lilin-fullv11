@@ -9,7 +9,8 @@ import {
   MessageSquare, 
   LogOut,
   User,
-  TrendingUp
+  TrendingUp,
+  Camera
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -52,6 +53,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       description: "Kelola produk export"
+    },
+    { 
+      id: "gallery", 
+      label: "Gallery", 
+      icon: Camera, 
+      path: "/admin/gallery",
+      color: "text-cyan-600",
+      bgColor: "bg-cyan-50",
+      description: "Kelola foto gallery"
     },
     { 
       id: "blog", 

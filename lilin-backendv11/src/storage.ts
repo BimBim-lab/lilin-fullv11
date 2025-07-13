@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -27,6 +27,13 @@ export interface IStorage {
   
   getProducts(): Promise<Product[]>;
   updateProducts(products: InsertProduct[]): Promise<Product[]>;
+  
+  getGallery(): Promise<Gallery[]>;
+  getGalleryById(id: number): Promise<Gallery | undefined>;
+  createGallery(gallery: InsertGallery): Promise<Gallery>;
+  updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined>;
+  deleteGallery(id: number): Promise<boolean>;
+  getHighlightedGallery(): Promise<Gallery[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -38,9 +45,11 @@ export class MemStorage implements IStorage {
   private workshopPackages: WorkshopPackage[];
   private workshopCurriculum: WorkshopCurriculum[];
   private products: Product[];
+  private gallery: Gallery[];
   private currentUserId: number;
   private currentBlogPostId: number;
   private currentContactId: number;
+  private currentGalleryId: number;
 
   constructor() {
     this.users = new Map();
@@ -49,6 +58,7 @@ export class MemStorage implements IStorage {
     this.currentUserId = 1;
     this.currentBlogPostId = 1;
     this.currentContactId = 1;
+    this.currentGalleryId = 1;
     
     // Initialize hero data with default values
     this.heroData = {
@@ -241,6 +251,65 @@ export class MemStorage implements IStorage {
       tiktok: "@weiscandle",
       updatedAt: new Date()
     };
+    
+    // Initialize gallery with default values
+    this.gallery = [
+      {
+        id: 1,
+        title: "Workshop Candle Making",
+        description: "Peserta sedang belajar teknik dasar pembuatan lilin aromaterapi",
+        imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "workshop",
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        title: "Essential Oil Blending",
+        description: "Proses pencampuran essential oil untuk menciptakan aroma signature",
+        imageUrl: "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "workshop",
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 3,
+        title: "Finished Products",
+        description: "Hasil karya peserta workshop yang siap untuk dibawa pulang",
+        imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "products",
+        order: 3,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 4,
+        title: "Studio Workshop",
+        description: "Suasana studio workshop yang nyaman dan modern",
+        imageUrl: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: false,
+        category: "studio",
+        order: 4,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 5,
+        title: "Group Workshop",
+        description: "Kegiatan workshop dalam grup kecil untuk pembelajaran optimal",
+        imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: false,
+        category: "workshop",
+        order: 5,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
     
     // Initialize with sample blog posts
     this.initializeBlogPosts();
@@ -507,6 +576,64 @@ export class MemStorage implements IStorage {
     };
     console.log('Contact info updated:', this.contactInfo);
     return this.contactInfo;
+  }
+
+  async getGallery(): Promise<Gallery[]> {
+    return this.gallery.sort((a, b) => (a.order || 0) - (b.order || 0));
+  }
+
+  async getGalleryById(id: number): Promise<Gallery | undefined> {
+    return this.gallery.find(item => item.id === id);
+  }
+
+  async createGallery(galleryData: InsertGallery): Promise<Gallery> {
+    const newGallery: Gallery = {
+      id: this.currentGalleryId++,
+      title: galleryData.title,
+      description: galleryData.description ?? null,
+      imageUrl: galleryData.imageUrl,
+      isHighlighted: galleryData.isHighlighted ?? null,
+      category: galleryData.category ?? null,
+      order: galleryData.order ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.gallery.push(newGallery);
+    console.log('Gallery item created:', newGallery);
+    return newGallery;
+  }
+
+  async updateGallery(id: number, galleryData: Partial<InsertGallery>): Promise<Gallery | undefined> {
+    const index = this.gallery.findIndex(item => item.id === id);
+    if (index === -1) return undefined;
+
+    this.gallery[index] = {
+      ...this.gallery[index],
+      ...galleryData,
+      updatedAt: new Date()
+    };
+    
+    console.log('Gallery item updated:', this.gallery[index]);
+    return this.gallery[index];
+  }
+
+  async deleteGallery(id: number): Promise<boolean> {
+    const initialLength = this.gallery.length;
+    this.gallery = this.gallery.filter(item => item.id !== id);
+    
+    if (this.gallery.length < initialLength) {
+      console.log('Gallery item deleted:', id);
+      return true;
+    }
+    return false;
+  }
+
+  async getHighlightedGallery(): Promise<Gallery[]> {
+    return this.gallery
+      .filter(item => item.isHighlighted)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .slice(0, 3);
   }
 }
 

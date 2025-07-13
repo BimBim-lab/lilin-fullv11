@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import WorkshopBenefits from "@/components/WorkshopBenefits";
 import SchedulePricing from "@/components/SchedulePricing";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
+import GallerySection from "@/components/GallerySection";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { type ContactInfo } from "@/shared/schema";
@@ -108,6 +109,9 @@ export default function Home() {
       <WorkshopBenefits />
       <SchedulePricing />
       <TestimonialCarousel />
+      
+      {/* Gallery Section */}
+      <GallerySection />
       
       {/* Workshop Details Preview */}
       <section className="py-16 bg-gray-50">

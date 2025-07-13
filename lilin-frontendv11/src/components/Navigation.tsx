@@ -24,6 +24,7 @@ export default function Navigation() {
   const navigationItems = [
     { path: "/", label: "Beranda" },
     { path: "/workshop", label: "Workshop" },
+    { path: "/gallery", label: "Gallery" },
     { path: "/about", label: "Tentang Kami" },
     { path: "/blog", label: "Blog" },
     { path: "/contact", label: "Kontak" },

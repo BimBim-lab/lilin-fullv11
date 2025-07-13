@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -29,6 +29,13 @@ export interface IStorage {
   
   getProducts(): Promise<Product[]>;
   updateProducts(products: InsertProduct[]): Promise<Product[]>;
+  
+  getGallery(): Promise<Gallery[]>;
+  getGalleryById(id: number): Promise<Gallery | undefined>;
+  createGallery(gallery: InsertGallery): Promise<Gallery>;
+  updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined>;
+  deleteGallery(id: number): Promise<boolean>;
+  getHighlightedGallery(): Promise<Gallery[]>;
 }
 
 interface StorageData {
@@ -40,9 +47,11 @@ interface StorageData {
   workshopPackages: WorkshopPackage[];
   workshopCurriculum: WorkshopCurriculum[];
   products: Product[];
+  gallery: Gallery[];
   currentUserId: number;
   currentBlogPostId: number;
   currentContactId: number;
+  currentGalleryId: number;
 }
 
 export class FileStorage implements IStorage {
@@ -70,9 +79,11 @@ export class FileStorage implements IStorage {
           workshopPackages: fileData.workshopPackages || this.getDefaultWorkshopPackages(),
           workshopCurriculum: fileData.workshopCurriculum || this.getDefaultWorkshopCurriculum(),
           products: fileData.products || this.getDefaultProducts(),
+          gallery: fileData.gallery || this.getDefaultGallery(),
           currentUserId: fileData.currentUserId || 1,
           currentBlogPostId: fileData.currentBlogPostId || 1,
           currentContactId: fileData.currentContactId || 1,
+          currentGalleryId: fileData.currentGalleryId || 1,
         };
         console.log('Data loaded from file');
       } catch (error) {
@@ -96,9 +107,11 @@ export class FileStorage implements IStorage {
         workshopPackages: this.data.workshopPackages,
         workshopCurriculum: this.data.workshopCurriculum,
         products: this.data.products,
+        gallery: this.data.gallery,
         currentUserId: this.data.currentUserId,
         currentBlogPostId: this.data.currentBlogPostId,
         currentContactId: this.data.currentContactId,
+        currentGalleryId: this.data.currentGalleryId,
       };
       writeFileSync(this.dataFile, JSON.stringify(dataToSave, null, 2));
       console.log('Data saved to file');
@@ -115,11 +128,13 @@ export class FileStorage implements IStorage {
       currentUserId: 1,
       currentBlogPostId: 1,
       currentContactId: 1,
+      currentGalleryId: 1,
       heroData: this.getDefaultHeroData(),
       contactInfo: this.getDefaultContactInfo(),
       workshopPackages: this.getDefaultWorkshopPackages(),
       workshopCurriculum: this.getDefaultWorkshopCurriculum(),
       products: this.getDefaultProducts(),
+      gallery: this.getDefaultGallery(),
     };
     this.initializeBlogPosts();
     this.saveData();
@@ -317,6 +332,66 @@ export class FileStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300",
         description: "Paket lengkap untuk membuat lilin aromaterapi sendiri di rumah",
         moq: "20 sets",
+        updatedAt: new Date()
+      }
+    ];
+  }
+
+  private getDefaultGallery(): Gallery[] {
+    return [
+      {
+        id: 1,
+        title: "Workshop Candle Making",
+        description: "Peserta sedang belajar teknik dasar pembuatan lilin aromaterapi",
+        imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "workshop",
+        order: 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 2,
+        title: "Essential Oil Blending",
+        description: "Proses pencampuran essential oil untuk menciptakan aroma signature",
+        imageUrl: "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "workshop",
+        order: 2,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 3,
+        title: "Finished Products",
+        description: "Hasil karya peserta workshop yang siap untuk dibawa pulang",
+        imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: true,
+        category: "products",
+        order: 3,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 4,
+        title: "Studio Workshop",
+        description: "Suasana studio workshop yang nyaman dan modern",
+        imageUrl: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: false,
+        category: "studio",
+        order: 4,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 5,
+        title: "Group Workshop",
+        description: "Kegiatan workshop dalam grup kecil untuk pembelajaran optimal",
+        imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        isHighlighted: false,
+        category: "workshop",
+        order: 5,
+        createdAt: new Date(),
         updatedAt: new Date()
       }
     ];
@@ -531,6 +606,68 @@ export class FileStorage implements IStorage {
     this.saveData();
     console.log('Products updated and saved to file:', this.data.products);
     return this.data.products;
+  }
+
+  // Gallery methods
+  async getGallery(): Promise<Gallery[]> {
+    return this.data.gallery.sort((a, b) => (a.order || 0) - (b.order || 0));
+  }
+
+  async getGalleryById(id: number): Promise<Gallery | undefined> {
+    return this.data.gallery.find(item => item.id === id);
+  }
+
+  async createGallery(galleryData: InsertGallery): Promise<Gallery> {
+    const newGallery: Gallery = {
+      id: this.data.currentGalleryId++,
+      title: galleryData.title,
+      description: galleryData.description ?? null,
+      imageUrl: galleryData.imageUrl,
+      isHighlighted: galleryData.isHighlighted ?? null,
+      category: galleryData.category ?? null,
+      order: galleryData.order ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.data.gallery.push(newGallery);
+    this.saveData();
+    console.log('Gallery item created and saved:', newGallery);
+    return newGallery;
+  }
+
+  async updateGallery(id: number, galleryData: Partial<InsertGallery>): Promise<Gallery | undefined> {
+    const index = this.data.gallery.findIndex(item => item.id === id);
+    if (index === -1) return undefined;
+
+    this.data.gallery[index] = {
+      ...this.data.gallery[index],
+      ...galleryData,
+      updatedAt: new Date()
+    };
+    
+    this.saveData();
+    console.log('Gallery item updated and saved:', this.data.gallery[index]);
+    return this.data.gallery[index];
+  }
+
+  async deleteGallery(id: number): Promise<boolean> {
+    const initialLength = this.data.gallery.length;
+    this.data.gallery = this.data.gallery.filter(item => item.id !== id);
+    
+    if (this.data.gallery.length < initialLength) {
+      this.saveData();
+      console.log('Gallery item deleted and saved:', id);
+      return true;
+    }
+    return false;
+  }
+
+  async getHighlightedGallery(): Promise<Gallery[]> {
+    return this.data.gallery
+      .filter(item => item.isHighlighted)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .slice(0, 3);
   }
 }
 

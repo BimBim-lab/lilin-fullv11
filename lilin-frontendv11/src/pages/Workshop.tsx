@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import SchedulePricing from "@/components/SchedulePricing";
+import GallerySection from "@/components/GallerySection";
 import { ContactInfo } from "@/shared/schema";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -227,6 +228,15 @@ export default function Workshop({
             title="Pilih Paket Workshop yang Sesuai"
             subtitle="Temukan paket workshop yang cocok dengan kebutuhan dan budget Anda"
             onPackageSelect={onPackageSelect}
+          />
+        </div>
+
+        {/* Gallery Section */}
+        <div className="mb-16">
+          <GallerySection
+            title="Galeri Workshop"
+            subtitle="Lihat suasana workshop dan hasil karya peserta kami"
+            showViewAllButton={true}
           />
         </div>
 
