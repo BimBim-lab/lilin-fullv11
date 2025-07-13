@@ -18,6 +18,7 @@ interface AnalyticsData {
   totalVisitors: number;
   todayVisitors: number;
   totalSessions: number;
+  pageViews: number;
   heroButtonClicks: number;
   topPages: Array<{ page: string; views: number }>;
   avgEngagementTime: number;
@@ -25,6 +26,9 @@ interface AnalyticsData {
   trafficSources: Array<{ source: string; visitors: number }>;
   deviceCategories: Array<{ device: string; sessions: number }>;
   newVsReturning: { newUsers: number; returningUsers: number };
+  sessionsPerUser: string | number;
+  pagesPerSession: string | number;
+  isDemo?: boolean; // Optional flag to indicate demo data
 }
 
 export default function AnalyticsDashboard() {
@@ -132,9 +136,10 @@ export default function AnalyticsDashboard() {
     return `${num.toFixed(1)}%`;
   };
 
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+  const formatTime = (time: number | string): string => {
+    if (typeof time === 'string') return time;
+    const minutes = Math.floor(time / 60);
+    const remainingSeconds = Math.floor(time % 60);
     return `${minutes}m ${remainingSeconds}s`;
   };
 
@@ -184,6 +189,16 @@ export default function AnalyticsDashboard() {
               Property ID: {gaCredentials.propertyId}<br />
               Service Account: {gaCredentials.serviceAccountEmail}
             </div>
+            {analyticsData && !analyticsData.isDemo && (
+              <div className="mt-2 text-sm text-green-600 font-medium">
+                ✅ Displaying real Google Analytics data
+              </div>
+            )}
+            {analyticsData && analyticsData.isDemo && (
+              <div className="mt-2 text-sm text-amber-600 font-medium">
+                ⚠️ Using demo data (GA API connection issue)
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       )}
@@ -192,7 +207,7 @@ export default function AnalyticsDashboard() {
       {analyticsData && (
         <>
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
@@ -228,6 +243,19 @@ export default function AnalyticsDashboard() {
                 <div className="text-2xl font-bold">{formatNumber(analyticsData.totalSessions)}</div>
                 <p className="text-xs text-muted-foreground">
                   All sessions
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Page Views</CardTitle>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(analyticsData.pageViews)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total page views
                 </p>
               </CardContent>
             </Card>
