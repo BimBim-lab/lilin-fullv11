@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Upload, Eye, Star, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -32,6 +33,7 @@ export default function GalleryDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [editingItem, setEditingItem] = useState<Gallery | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<Gallery>({
     title: "",
@@ -181,6 +183,11 @@ export default function GalleryDashboard() {
           description: editingItem ? "Gallery berhasil diupdate" : "Gallery berhasil ditambahkan",
         });
         await loadGallery();
+        
+        // Invalidate gallery queries to update frontend immediately
+        queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        queryClient.invalidateQueries({ queryKey: ['galleryHighlighted'] });
+        
         resetForm();
       } else if (response.status === 401) {
         toast({
@@ -233,6 +240,11 @@ export default function GalleryDashboard() {
           description: "Gallery berhasil dihapus",
         });
         await loadGallery();
+        
+        // Invalidate gallery queries to update frontend immediately
+        queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        queryClient.invalidateQueries({ queryKey: ['galleryHighlighted'] });
+        
       } else if (response.status === 401) {
         toast({
           title: "Error",

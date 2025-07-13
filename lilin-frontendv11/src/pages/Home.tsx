@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import HeroSection from "@/components/HeroSection";
 import WorkshopBenefits from "@/components/WorkshopBenefits";
@@ -24,7 +24,23 @@ interface HeroData {
 }
 
 export default function Home() {
-  const [heroData, setHeroData] = useState<HeroData>({
+  // Fetch hero data with useQuery for automatic cache management
+  const { data: heroData, isLoading: heroLoading } = useQuery<HeroData>({
+    queryKey: ['heroData'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/hero`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch hero data');
+      }
+      return response.json();
+    },
+    retry: 1,
+    staleTime: 2 * 60 * 1000, // 2 minutes - shorter for admin updates
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+  });
+
+  // Default hero data fallback
+  const defaultHeroData: HeroData = {
     title1: "Workshop Lilin Aromaterapi oleh",
     title2: "WeisCandle", 
     description: "Pelajari seni membuat lilin aromaterapi yang menenangkan dengan teknik profesional dan bahan berkualitas tinggi.",
@@ -34,9 +50,10 @@ export default function Home() {
     showStats: true,
     statsNumber: "500+",
     statsLabel: "Peserta Puas"
-  });
+  };
 
-  const [loading, setLoading] = useState(true);
+  // Use fetched data or fallback to default
+  const currentHeroData = heroData || defaultHeroData;
 
   // Fetch contact info for WhatsApp integration
   const { data: contactInfo } = useQuery<ContactInfo>({
@@ -62,47 +79,26 @@ export default function Home() {
 
   useEffect(() => {
     document.title = "WeisCandle - Workshop Lilin Aromaterapi Terbaik di Indonesia";
-    
-    // Fetch hero data from backend
-    const fetchHeroData = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/hero`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Hero data received from backend:', data);
-          setHeroData(data);
-        } else {
-          console.error('Failed to fetch hero data:', response.status, response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching hero data:', error);
-        // Keep using default data if fetch fails
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHeroData();
   }, []);
 
   return (
     <div className="min-h-screen">
-      {loading ? (
+      {heroLoading ? (
         // Loading skeleton for hero section
         <div className="h-96 bg-gray-200 animate-pulse flex items-center justify-center">
           <div className="text-gray-500">Loading...</div>
         </div>
       ) : (
         <HeroSection 
-          image={heroData.imageUrl || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"}
-          title1={heroData.title1}
-          title2={heroData.title2}
-          description={heroData.description}
-          imageAlt={heroData.imageAlt}
-          showButtons={heroData.showButtons}
-          showStats={heroData.showStats}
-          statsNumber={heroData.statsNumber}
-          statsLabel={heroData.statsLabel}
+          image={currentHeroData.imageUrl || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"}
+          title1={currentHeroData.title1}
+          title2={currentHeroData.title2}
+          description={currentHeroData.description}
+          imageAlt={currentHeroData.imageAlt}
+          showButtons={currentHeroData.showButtons}
+          showStats={currentHeroData.showStats}
+          statsNumber={currentHeroData.statsNumber}
+          statsLabel={currentHeroData.statsLabel}
           onDaftarClick={() => handleWhatsAppRegistration()}
         />
       )}

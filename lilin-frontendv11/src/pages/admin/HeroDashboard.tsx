@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit3, Eye, Save, Upload, Image, Loader2, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -24,6 +25,7 @@ interface HeroData {
 
 export default function HeroDashboard() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [heroData, setHeroData] = useState<HeroData>({
     title1: "Workshop Lilin Aromaterapi oleh",
     title2: "WeisCandle",
@@ -186,6 +188,9 @@ export default function HeroDashboard() {
       setHeroData(savedData);
       setSelectedFile(null);
       setFilePreview(null);
+      
+      // Invalidate and refetch hero data on homepage
+      queryClient.invalidateQueries({ queryKey: ['heroData'] });
       
       // Clear file input
       const fileInput = document.getElementById('hero-image-upload') as HTMLInputElement;

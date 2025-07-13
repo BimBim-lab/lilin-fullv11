@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Eye } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -30,86 +30,52 @@ export default function GallerySection({
   className = "",
   showViewAllButton = false
 }: GallerySectionProps) {
-  const [highlightedGallery, setHighlightedGallery] = useState<Gallery[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadHighlightedGallery();
-  }, []);
-
-  const loadHighlightedGallery = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/gallery/highlighted`);
-      if (response.ok) {
-        const data = await response.json();
-        setHighlightedGallery(data);
-      } else {
-        console.error('Failed to load highlighted gallery');
-        // Fallback to static data
-        const staticGallery: Gallery[] = [
-          {
-            id: 1,
-            title: "Workshop Candle Making",
-            description: "Peserta sedang belajar teknik dasar pembuatan lilin aromaterapi",
-            imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-            isHighlighted: true,
-            category: "workshop"
-          },
-          {
-            id: 2,
-            title: "Essential Oil Blending",
-            description: "Proses pencampuran essential oil untuk menciptakan aroma signature",
-            imageUrl: "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-            isHighlighted: true,
-            category: "workshop"
-          },
-          {
-            id: 3,
-            title: "Finished Products",
-            description: "Hasil karya peserta workshop yang siap untuk dibawa pulang",
-            imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-            isHighlighted: true,
-            category: "products"
-          }
-        ];
-        
-        setHighlightedGallery(staticGallery);
-      }
-    } catch (error) {
-      console.error('Error loading highlighted gallery:', error);
-      // Fallback to static data
-      const staticGallery: Gallery[] = [
-        {
-          id: 1,
-          title: "Workshop Candle Making",
-          description: "Peserta sedang belajar teknik dasar pembuatan lilin aromaterapi",
-          imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-          isHighlighted: true,
-          category: "workshop"
-        },
-        {
-          id: 2,
-          title: "Essential Oil Blending",
-          description: "Proses pencampuran essential oil untuk menciptakan aroma signature",
-          imageUrl: "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-          isHighlighted: true,
-          category: "workshop"
-        },
-        {
-          id: 3,
-          title: "Finished Products",
-          description: "Hasil karya peserta workshop yang siap untuk dibawa pulang",
-          imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-          isHighlighted: true,
-          category: "products"
-        }
-      ];
-      
-      setHighlightedGallery(staticGallery);
-    } finally {
-      setIsLoading(false);
+  
+  // Static fallback data for when API fails
+  const staticGallery: Gallery[] = [
+    {
+      id: 1,
+      title: "Workshop Candle Making",
+      description: "Peserta sedang belajar teknik dasar pembuatan lilin aromaterapi",
+      imageUrl: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      isHighlighted: true,
+      category: "workshop"
+    },
+    {
+      id: 2,
+      title: "Essential Oil Blending",
+      description: "Proses pencampuran essential oil untuk menciptakan aroma signature",
+      imageUrl: "https://images.unsplash.com/photo-1585652757173-57de8b1b744b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      isHighlighted: true,
+      category: "workshop"
+    },
+    {
+      id: 3,
+      title: "Finished Products",
+      description: "Hasil karya peserta workshop yang siap untuk dibawa pulang",
+      imageUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      isHighlighted: true,
+      category: "products"
     }
-  };
+  ];
+
+  // Fetch highlighted gallery with useQuery
+  const { data: highlightedGallery, isLoading } = useQuery<Gallery[]>({
+    queryKey: ['galleryHighlighted'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/gallery/highlighted`);
+      if (!response.ok) {
+        throw new Error('Failed to load highlighted gallery');
+      }
+      return response.json();
+    },
+    retry: 1,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: true,
+  });
+
+  // Use fetched data or fallback to static data  
+  const galleryData = highlightedGallery || staticGallery;
 
   if (isLoading) {
     return (
@@ -129,7 +95,7 @@ export default function GallerySection({
     );
   }
 
-  if (highlightedGallery.length === 0) {
+  if (galleryData.length === 0) {
     return null;
   }
 
@@ -148,7 +114,7 @@ export default function GallerySection({
 
         {/* Gallery Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {highlightedGallery.map((item) => (
+          {galleryData.map((item) => (
             <div 
               key={item.id} 
               className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
