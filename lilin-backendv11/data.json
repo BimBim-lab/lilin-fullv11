@@ -267,6 +267,12 @@
       "updatedAt": "2025-07-13T10:36:21.482Z"
     }
   ],
+  "adminCredentials": {
+    "id": 1,
+    "email": "admin@weiscandle.com",
+    "password": "$2b$10$oM6IU3W0nMy85dj4qzgeFuPI2Jt39prJVkONfzaKZR9jrq8dfaEs2",
+    "updatedAt": "2025-07-13T10:36:21.482Z"
+  },
   "currentUserId": 1,
   "currentBlogPostId": 4,
   "currentContactId": 1,

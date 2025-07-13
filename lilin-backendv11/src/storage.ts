@@ -260,7 +260,7 @@ export class MemStorage implements IStorage {
     this.adminCredentials = {
       id: 1,
       email: "admin@weiscandle.com",
-      password: "$2a$10$N9qo8uLOickgx2ZMRZoMye.36pnM2PQpY2xBxJLQG7G1F1GGxh2EG", // "admin123" hashed
+      password: "$2b$10$oM6IU3W0nMy85dj4qzgeFuPI2Jt39prJVkONfzaKZR9jrq8dfaEs2", // "admin123" hashed correctly
       updatedAt: new Date()
     };
     
