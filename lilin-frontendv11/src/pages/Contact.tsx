@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema, type InsertContact, type ContactInfo } from "@shared/schema";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface ContactProps {
   contactInfo?: ContactInfo;
 }
@@ -22,7 +24,7 @@ export default function Contact({ contactInfo }: ContactProps) {
 
   // Fetch contact info from API
   const { data: apiContactInfo } = useQuery<ContactInfo>({
-    queryKey: ["/api/contact-info"],
+    queryKey: [`${API_BASE_URL}/api/contact-info`],
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
@@ -62,7 +64,7 @@ export default function Contact({ contactInfo }: ContactProps) {
 
   const contactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const response = await apiRequest("POST", "/api/contact", data);
+      const response = await apiRequest("POST", `${API_BASE_URL}/api/contact`, data);
       return response.json();
     },
     onSuccess: (data) => {
