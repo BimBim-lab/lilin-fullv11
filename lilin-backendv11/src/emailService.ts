@@ -10,26 +10,44 @@ class EmailService {
     this.setupTransporter();
   }
 
+  // Method to re-initialize after env vars are loaded
+  public reinitialize() {
+    console.log('🔄 Reinitializing email service...');
+    this.setupTransporter();
+  }
+
   private setupTransporter() {
     try {
       // Check if production email credentials are available
       const emailUser = process.env.EMAIL_USER;
       const emailPass = process.env.EMAIL_PASS;
-      const emailService = process.env.EMAIL_SERVICE || 'gmail';
+      const emailHost = process.env.EMAIL_HOST || 'smtp.gmail.com';
+      const emailPort = parseInt(process.env.EMAIL_PORT || '587');
+      const emailSecure = process.env.EMAIL_SECURE === 'true';
 
       if (emailUser && emailPass) {
-        // Production email configuration
+        // Production email configuration with explicit SMTP settings
         this.transporter = nodemailer.createTransport({
-          service: emailService,
+          host: emailHost,
+          port: emailPort,
+          secure: emailSecure, // true for 465, false for other ports
           auth: {
             user: emailUser,
             pass: emailPass
+          },
+          tls: {
+            rejectUnauthorized: false // Allow self-signed certificates
           }
         });
 
         this.isConfigured = true;
         this.isTestAccount = false;
-        console.log(`✅ Email service configured with ${emailService}:`, emailUser);
+        console.log(`✅ Email service configured with SMTP:`, {
+          host: emailHost,
+          port: emailPort,
+          user: emailUser,
+          secure: emailSecure
+        });
       } else {
         // Fallback to test account for development
         console.log('⚠️  Production email not configured, using test account');
@@ -268,4 +286,14 @@ Tim WeisCandle
   }
 }
 
-export const emailService = new EmailService();
+let emailServiceInstance: EmailService | null = null;
+
+export function getEmailService(): EmailService {
+  if (!emailServiceInstance) {
+    emailServiceInstance = new EmailService();
+  }
+  return emailServiceInstance;
+}
+
+// Backward compatibility
+export const emailService = getEmailService();

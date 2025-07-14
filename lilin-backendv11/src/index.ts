@@ -1,13 +1,23 @@
-import express, { type Request, Response, NextFunction } from "express";
-import cors from "cors";
-import multer from "multer";
+// Load environment variables FIRST
+import { config } from "dotenv";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from "url";
-import { registerRoutes } from "./routes";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load .env from the correct path
+config({ path: path.join(__dirname, '..', '.env') });
+
+import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import multer from "multer";
+import fs from "fs";
+import { registerRoutes } from "./routes";
+import { emailService } from "./emailService";
+
+// Reinitialize email service after env vars are loaded
+emailService.reinitialize();
 
 const app = express();
 

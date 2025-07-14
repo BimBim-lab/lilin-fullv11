@@ -41,7 +41,44 @@
       }
     ]
   ],
-  "contacts": [],
+  "contacts": [
+    [
+      1,
+      {
+        "id": 1,
+        "name": "Test User",
+        "email": "test@example.com",
+        "phone": "+62123456789",
+        "subject": "Test Email Configuration",
+        "message": "Testing email configuration after setup",
+        "createdAt": "2025-07-14T12:14:24.439Z"
+      }
+    ],
+    [
+      2,
+      {
+        "id": 2,
+        "name": "Budi Santoso",
+        "email": "budi@example.com",
+        "phone": "+6281234567890",
+        "subject": "Pertanyaan Workshop Lilin Aromaterapi",
+        "message": "Halo, saya tertarik dengan workshop lilin aromaterapi. Apakah ada jadwal untuk bulan ini? Terima kasih.",
+        "createdAt": "2025-07-14T12:15:12.670Z"
+      }
+    ],
+    [
+      3,
+      {
+        "id": 3,
+        "name": "Sari Indah",
+        "email": "sari@example.com",
+        "subject": "Test Final Email Configuration",
+        "message": "Testing final email configuration dengan Gmail SMTP",
+        "phone": null,
+        "createdAt": "2025-07-14T12:15:51.187Z"
+      }
+    ]
+  ],
   "heroData": {
     "id": 1,
     "title1": "Workshop Lilin Aromaterapi olehhaarr",
@@ -275,6 +312,6 @@
   },
   "currentUserId": 1,
   "currentBlogPostId": 4,
-  "currentContactId": 1,
+  "currentContactId": 4,
   "currentGalleryId": 1
 }
