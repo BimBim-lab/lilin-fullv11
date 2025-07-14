@@ -9,7 +9,6 @@ import {
   MessageSquare, 
   LogOut,
   User,
-  TrendingUp,
   Camera
 } from "lucide-react";
 
@@ -89,15 +88,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       color: "text-gray-600",
       bgColor: "bg-gray-50",
       description: "Kelola akun admin"
-    },
-    { 
-      id: "analytics", 
-      label: "Analytics", 
-      icon: TrendingUp, 
-      path: "/admin/analytics",
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-      description: "Monitor website analytics"
     }
   ];
 
@@ -204,7 +194,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                           </div>
                         </div>
                         <div className={`text-sm font-medium ${stat.color} flex items-center space-x-1`}>
-                          <TrendingUp className="w-4 h-4" />
+                          <span>↗</span>
                           <span>{stat.change}</span>
                         </div>
                       </div>

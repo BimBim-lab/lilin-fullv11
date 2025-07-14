@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials, type GACredentials, type InsertGACredentials } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -39,9 +39,6 @@ export interface IStorage {
   
   getAdminCredentials(): Promise<AdminCredentials>;
   updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials>;
-  
-  getGACredentials(): Promise<GACredentials | undefined>;
-  updateGACredentials(credentials: InsertGACredentials): Promise<GACredentials>;
 }
 
 interface StorageData {
@@ -55,7 +52,6 @@ interface StorageData {
   products: Product[];
   gallery: Gallery[];
   adminCredentials: AdminCredentials;
-  gaCredentials: GACredentials | undefined;
   currentUserId: number;
   currentBlogPostId: number;
   currentContactId: number;
@@ -89,7 +85,6 @@ export class FileStorage implements IStorage {
           products: fileData.products || this.getDefaultProducts(),
           gallery: fileData.gallery || this.getDefaultGallery(),
           adminCredentials: fileData.adminCredentials || this.getDefaultAdminCredentials(),
-          gaCredentials: this.getDefaultGACredentials(), // Always load from env vars, ignore file data
           currentUserId: fileData.currentUserId || 1,
           currentBlogPostId: fileData.currentBlogPostId || 1,
           currentContactId: fileData.currentContactId || 1,
@@ -148,7 +143,6 @@ export class FileStorage implements IStorage {
       products: this.getDefaultProducts(),
       gallery: this.getDefaultGallery(),
       adminCredentials: this.getDefaultAdminCredentials(),
-      gaCredentials: this.getDefaultGACredentials(),
     };
     this.initializeBlogPosts();
     this.saveData();
@@ -693,28 +687,6 @@ export class FileStorage implements IStorage {
     };
   }
 
-  private getDefaultGACredentials(): GACredentials | undefined {
-    // Load GA credentials from environment variables (SECURE)
-    const propertyId = process.env.GA4_PROPERTY_ID;
-    const serviceAccountEmail = process.env.GA4_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GA4_PRIVATE_KEY;
-
-    if (propertyId && serviceAccountEmail && privateKey) {
-      console.log('✅ GA Credentials loaded from environment variables');
-      return {
-        id: 1,
-        propertyId,
-        serviceAccountEmail,
-        privateKey,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-    } else {
-      console.log('⚠️  GA Credentials not found in environment variables. Set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY');
-      return undefined;
-    }
-  }
-
   async getAdminCredentials(): Promise<AdminCredentials> {
     return this.data.adminCredentials;
   }
@@ -727,16 +699,6 @@ export class FileStorage implements IStorage {
     };
     this.saveData();
     return this.data.adminCredentials;
-  }
-
-  async getGACredentials(): Promise<GACredentials | undefined> {
-    return this.data.gaCredentials;
-  }
-
-  async updateGACredentials(_credentials: InsertGACredentials): Promise<GACredentials> {
-    // GA Credentials are now READ-ONLY from environment variables
-    // This method is deprecated for security - credentials should be set via Railway env vars
-    throw new Error('GA Credentials are read-only from environment variables. Please set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY in Railway environment variables.');
   }
 }
 

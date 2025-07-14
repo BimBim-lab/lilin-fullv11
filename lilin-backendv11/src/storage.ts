@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials, type GACredentials, type InsertGACredentials } from "./schema";
+import { type User, type InsertUser, type BlogPost, type InsertBlogPost, type Contact, type InsertContact, type HeroData, type InsertHeroData, type WorkshopPackage, type InsertWorkshopPackage, type WorkshopCurriculum, type InsertWorkshopCurriculum, type Product, type InsertProduct, type ContactInfo, type InsertContactInfo, type Gallery, type InsertGallery, type AdminCredentials, type InsertAdminCredentials } from "./schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -37,9 +37,6 @@ export interface IStorage {
   
   getAdminCredentials(): Promise<AdminCredentials>;
   updateAdminCredentials(credentials: InsertAdminCredentials): Promise<AdminCredentials>;
-  
-  getGACredentials(): Promise<GACredentials | undefined>;
-  updateGACredentials(credentials: InsertGACredentials): Promise<GACredentials>;
 }
 
 export class MemStorage implements IStorage {
@@ -53,7 +50,6 @@ export class MemStorage implements IStorage {
   private products: Product[];
   private gallery: Gallery[];
   private adminCredentials: AdminCredentials;
-  private gaCredentials: GACredentials | undefined;
   private currentUserId: number;
   private currentBlogPostId: number;
   private currentContactId: number;
@@ -267,9 +263,6 @@ export class MemStorage implements IStorage {
       password: "$2b$10$oM6IU3W0nMy85dj4qzgeFuPI2Jt39prJVkONfzaKZR9jrq8dfaEs2", // "admin123" hashed correctly
       updatedAt: new Date()
     };
-    
-    // Initialize GA credentials from environment variables (SECURE)
-    this.loadGACredentialsFromEnv();
     
     // Initialize gallery with default values
     this.gallery = [
@@ -655,28 +648,6 @@ export class MemStorage implements IStorage {
       .slice(0, 3);
   }
 
-  private loadGACredentialsFromEnv(): void {
-    const propertyId = process.env.GA4_PROPERTY_ID;
-    const serviceAccountEmail = process.env.GA4_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GA4_PRIVATE_KEY;
-
-    if (propertyId && serviceAccountEmail && privateKey) {
-      this.gaCredentials = {
-        id: 1,
-        propertyId,
-        serviceAccountEmail,
-        privateKey,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      console.log('✅ GA Credentials loaded from environment variables');
-    } else {
-      console.log('⚠️  GA Credentials not found in environment variables. Set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY');
-      // Initialize with undefined so the API still works but credentials are empty
-      this.gaCredentials = undefined;
-    }
-  }
-
   async getAdminCredentials(): Promise<AdminCredentials> {
     return this.adminCredentials;
   }
@@ -688,16 +659,6 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     return this.adminCredentials;
-  }
-
-  async getGACredentials(): Promise<GACredentials | undefined> {
-    return this.gaCredentials;
-  }
-
-  async updateGACredentials(_credentials: InsertGACredentials): Promise<GACredentials> {
-    // GA Credentials are now READ-ONLY from environment variables
-    // This method is deprecated for security - credentials should be set via Railway env vars
-    throw new Error('GA Credentials are read-only from environment variables. Please set GA4_PROPERTY_ID, GA4_SERVICE_ACCOUNT_EMAIL, and GA4_PRIVATE_KEY in Railway environment variables.');
   }
 }
 

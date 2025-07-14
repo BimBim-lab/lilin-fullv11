@@ -20,7 +20,6 @@ import ProductExportDashboard from "@/pages/admin/ProductExportDashboard";
 import GalleryDashboard from "@/pages/admin/GalleryDashboard";
 import BlogDashboard from "@/pages/admin/BlogDashboard";
 import ContactDashboard from "@/pages/admin/ContactDashboard";
-import AnalyticsDashboard from "@/pages/admin/AnalyticsDashboard";
 import AdminSettingsDashboard from "@/pages/admin/AdminSettingsDashboard";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -130,13 +129,6 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <AdminSettingsDashboard />
-          </DashboardLayout>
-        </ProtectedRoute>
-      )} />
-      <Route path="/admin/analytics" component={() => (
-        <ProtectedRoute>
-          <DashboardLayout>
-            <AnalyticsDashboard />
           </DashboardLayout>
         </ProtectedRoute>
       )} />
