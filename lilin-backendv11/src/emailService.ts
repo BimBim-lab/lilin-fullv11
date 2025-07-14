@@ -12,25 +12,29 @@ class EmailService {
 
   private setupTransporter() {
     try {
-      // For development, we'll use a simple SMTP configuration
-      // In production, you should use proper email service like Gmail, SendGrid, etc.
-      
-      // Example configuration for Gmail (uncomment and configure for production)
-      /*
-      const config: EmailConfig = {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: process.env.EMAIL_USER || '',
-          pass: process.env.EMAIL_PASS || ''
-        }
-      };
-      */
+      // Check if production email credentials are available
+      const emailUser = process.env.EMAIL_USER;
+      const emailPass = process.env.EMAIL_PASS;
+      const emailService = process.env.EMAIL_SERVICE || 'gmail';
 
-      // For development, we'll use Ethereal Email (test service)
-      // This creates a test account automatically
-      this.createTestAccount();
+      if (emailUser && emailPass) {
+        // Production email configuration
+        this.transporter = nodemailer.createTransport({
+          service: emailService,
+          auth: {
+            user: emailUser,
+            pass: emailPass
+          }
+        });
+
+        this.isConfigured = true;
+        this.isTestAccount = false;
+        console.log(`✅ Email service configured with ${emailService}:`, emailUser);
+      } else {
+        // Fallback to test account for development
+        console.log('⚠️  Production email not configured, using test account');
+        this.createTestAccount();
+      }
       
     } catch (error) {
       console.error('Failed to setup email transporter:', error);
@@ -69,8 +73,11 @@ class EmailService {
     }
 
     try {
+      const fromName = process.env.EMAIL_FROM_NAME || 'WeisCandle Website';
+      const fromAddress = process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_USER || 'noreply@weiscandle.com';
+      
       const mailOptions = {
-        from: `"WeisCandle Website" <noreply@weiscandle.com>`,
+        from: `"${fromName}" <${fromAddress}>`,
         to: adminContactInfo.email,
         subject: `Pesan Baru dari Website: ${contact.subject}`,
         html: `
@@ -176,8 +183,11 @@ Email ini dikirim otomatis dari website WeisCandle.
     }
 
     try {
+      const fromName = process.env.EMAIL_FROM_NAME || 'WeisCandle';
+      const fromAddress = process.env.EMAIL_FROM_ADDRESS || process.env.EMAIL_USER || 'noreply@weiscandle.com';
+      
       const mailOptions = {
-        from: `"WeisCandle" <noreply@weiscandle.com>`,
+        from: `"${fromName}" <${fromAddress}>`,
         to: contact.email,
         subject: 'Terima kasih atas pesan Anda - WeisCandle',
         html: `

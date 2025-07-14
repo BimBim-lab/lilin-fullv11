@@ -246,6 +246,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test email endpoint
+  app.post("/api/test-email", authMiddleware, async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email address is required" });
+      }
+
+      // Create test contact
+      const testContact = {
+        id: 999,
+        name: "Test User",
+        email: email,
+        phone: "+62 812-3456-7890",
+        subject: "Test Email Configuration",
+        message: "This is a test email to verify email configuration is working properly.",
+        createdAt: new Date()
+      };
+
+      // Get admin contact info
+      const adminContactInfo = await storage.getContactInfo();
+      
+      // Send test email
+      const emailSent = await emailService.sendContactNotification(testContact, adminContactInfo);
+      
+      if (emailSent) {
+        res.json({ 
+          message: "Test email sent successfully! Check your inbox.",
+          details: "Email notification sent to admin email address"
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to send test email",
+          details: "Check email configuration in .env file"
+        });
+      }
+    } catch (error) {
+      console.error('Test email error:', error);
+      res.status(500).json({ 
+        message: "Test email failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Contact Info endpoints
   app.get("/api/contact-info", async (_req, res) => {
     try {
