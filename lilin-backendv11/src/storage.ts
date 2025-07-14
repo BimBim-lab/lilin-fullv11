@@ -662,4 +662,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import FileStorage from fileStorage.ts
+import { FileStorage } from './fileStorage';
+
+export const storage = new FileStorage();

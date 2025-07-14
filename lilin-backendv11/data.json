@@ -77,6 +77,102 @@
         "phone": null,
         "createdAt": "2025-07-14T12:15:51.187Z"
       }
+    ],
+    [
+      4,
+      {
+        "id": 4,
+        "name": "Test Dashboard Admin Email",
+        "email": "user.test@example.com",
+        "subject": "Test Email ke Dashboard Admin",
+        "message": "Testing apakah email terkirim ke email yang dikonfigurasi di dashboard admin",
+        "phone": null,
+        "createdAt": "2025-07-14T12:25:37.496Z"
+      }
+    ],
+    [
+      5,
+      {
+        "id": 5,
+        "name": "Final Test Email",
+        "email": "finaltest@example.com",
+        "subject": "Testing Email ke Gmail Anda",
+        "message": "Testing apakah email sekarang terkirim ke rakitweb.id@gmail.com",
+        "phone": null,
+        "createdAt": "2025-07-14T12:28:11.227Z"
+      }
+    ],
+    [
+      6,
+      {
+        "id": 6,
+        "name": "Debug Test",
+        "email": "debug@example.com",
+        "subject": "Debug Email Test",
+        "message": "Testing untuk melihat apakah menggunakan Gmail atau Test account",
+        "phone": null,
+        "createdAt": "2025-07-14T12:30:17.587Z"
+      }
+    ],
+    [
+      7,
+      {
+        "id": 7,
+        "name": "Production Test Gmail",
+        "email": "production@example.com",
+        "subject": "Test Email Production Gmail SMTP",
+        "message": "Testing setelah fix email service untuk menggunakan Gmail production",
+        "phone": null,
+        "createdAt": "2025-07-14T12:31:30.889Z"
+      }
+    ],
+    [
+      8,
+      {
+        "id": 8,
+        "name": "FINAL TEST - Gmail Production",
+        "email": "finalgmail@example.com",
+        "subject": "Email harus masuk ke rakitweb.id@gmail.com",
+        "message": "Testing final - email ini harus diterima di Gmail Anda: rakitweb.id@gmail.com",
+        "phone": null,
+        "createdAt": "2025-07-14T12:32:38.791Z"
+      }
+    ],
+    [
+      9,
+      {
+        "id": 9,
+        "name": "dcscdscds",
+        "email": "wahmibima@gmail.com",
+        "phone": "089508111661",
+        "subject": "Keluhan",
+        "message": "dsdvdvsdvds",
+        "createdAt": "2025-07-14T12:41:09.156Z"
+      }
+    ],
+    [
+      10,
+      {
+        "id": 10,
+        "name": "biamaaa",
+        "email": "wahmibima@gmail.com",
+        "phone": "089508111661",
+        "subject": "Konsultasi Bisnis",
+        "message": "adiygfadygvcdyu",
+        "createdAt": "2025-07-14T12:43:25.166Z"
+      }
+    ],
+    [
+      11,
+      {
+        "id": 11,
+        "name": "bima satria",
+        "email": "wahmibima@gmail.com",
+        "phone": "089508111661",
+        "subject": "Konsultasi Bisnis",
+        "message": "ascascsac",
+        "createdAt": "2025-07-14T13:01:48.388Z"
+      }
     ]
   ],
   "heroData": {
@@ -96,14 +192,14 @@
     "id": 1,
     "phone": "+62 812-3456-7890",
     "whatsapp": "+62 812-3456-7890",
-    "email": "info@weiscandle.com",
+    "email": "bimanursatria@gmail.com",
     "website": "https://weiscandle.com",
     "address": "Jl. Raya No. 123, Kemang\nJakarta Selatan 12345\nIndonesia",
     "mapEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613!3d-6.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5d2e764b12d%3A0x3d2ad6e1e0e9bcc8!2sJakarta%2C%20Indonesia!5e0!3m2!1sen!2sid!4v1234567890123!5m2!1sen!2sid",
     "instagram": "@weiscandle_official",
     "facebook": "WeisCandle Indonesia",
     "tiktok": "@weiscandle",
-    "updatedAt": "2025-07-13T10:36:21.482Z"
+    "updatedAt": "2025-07-14T12:42:49.846Z"
   },
   "workshopPackages": [
     {
@@ -312,6 +408,6 @@
   },
   "currentUserId": 1,
   "currentBlogPostId": 4,
-  "currentContactId": 4,
+  "currentContactId": 12,
   "currentGalleryId": 1
 }

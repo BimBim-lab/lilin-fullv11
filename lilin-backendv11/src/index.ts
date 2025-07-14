@@ -14,10 +14,10 @@ import cors from "cors";
 import multer from "multer";
 import fs from "fs";
 import { registerRoutes } from "./routes";
-import { emailService } from "./emailService";
+import { reinitializeEmailService } from "./emailService";
 
 // Reinitialize email service after env vars are loaded
-emailService.reinitialize();
+reinitializeEmailService();
 
 const app = express();
 
