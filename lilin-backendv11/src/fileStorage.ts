@@ -121,9 +121,10 @@ export class FileStorage implements IStorage {
         currentGalleryId: this.data.currentGalleryId,
       };
       writeFileSync(this.dataFile, JSON.stringify(dataToSave, null, 2));
-      console.log('Data saved to file');
+      console.log('📁 Data saved to file:', this.dataFile);
+      console.log('✅ Data contains:', Object.keys(dataToSave));
     } catch (error) {
-      console.error('Error saving data file:', error);
+      console.error('❌ Error saving data file:', error);
     }
   }
 

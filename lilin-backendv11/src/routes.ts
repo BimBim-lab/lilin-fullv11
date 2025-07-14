@@ -292,6 +292,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Data backup and restore endpoints
+  app.get("/api/admin/backup", authMiddleware, async (_req, res) => {
+    try {
+      // Return current data as JSON for backup
+      const data = {
+        heroData: await storage.getHeroData(),
+        contactInfo: await storage.getContactInfo(),
+        workshopPackages: await storage.getWorkshopPackages(),
+        workshopCurriculum: await storage.getWorkshopCurriculum(),
+        products: await storage.getProducts(),
+        gallery: await storage.getGallery(),
+        blogPosts: await storage.getBlogPosts(),
+        backupDate: new Date().toISOString()
+      };
+
+      res.setHeader('Content-Disposition', 'attachment; filename=weiscandle-backup.json');
+      res.json(data);
+    } catch (error) {
+      console.error('Backup error:', error);
+      res.status(500).json({ 
+        message: "Failed to create backup",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post("/api/admin/restore", authMiddleware, async (req, res) => {
+    try {
+      const backupData = req.body;
+      
+      if (!backupData) {
+        return res.status(400).json({ message: "No backup data provided" });
+      }
+
+      // Restore data (optional - only restore what's provided)
+      if (backupData.heroData) {
+        await storage.updateHeroData(backupData.heroData);
+      }
+      if (backupData.contactInfo) {
+        await storage.updateContactInfo(backupData.contactInfo);
+      }
+      if (backupData.workshopPackages) {
+        await storage.updateWorkshopPackages(backupData.workshopPackages);
+      }
+      if (backupData.workshopCurriculum) {
+        await storage.updateWorkshopCurriculum(backupData.workshopCurriculum);
+      }
+      if (backupData.products) {
+        await storage.updateProducts(backupData.products);
+      }
+
+      res.json({ 
+        message: "Data restored successfully",
+        restoredDate: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Restore error:', error);
+      res.status(500).json({ 
+        message: "Failed to restore data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Contact Info endpoints
   app.get("/api/contact-info", async (_req, res) => {
     try {
