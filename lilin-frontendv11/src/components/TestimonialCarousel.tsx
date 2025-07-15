@@ -5,31 +5,31 @@ export default function TestimonialCarousel() {
 
   const testimonials = [
     {
-      name: "Sari Dewi",
-      role: "Ibu Rumah Tangga",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100",
-      text: "Workshop yang sangat bermanfaat! Saya jadi bisa membuat lilin aromaterapi sendiri di rumah. Instrukturnya sabar dan materinya lengkap.",
-      rating: 5
-    },
-    {
-      name: "Budi Santoso",
-      role: "Entrepreneur",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100",
-      text: "Setelah ikut workshop ini, saya jadi bisa memulai bisnis lilin aromaterapi. Sekarang sudah punya 20 pelanggan tetap!",
+      name: "Nadya Rizky",
+      role: "Karyawan Kantoran",
+      image: "https://res.cloudinary.com/djyboknz6/image/upload/v1752557051/4_sok9iv.png",
+      text: "Setelah kerjaan kantor yang padat, ikut workshop lilin aromaterapi ini bener-bener jadi healing time. Bisa belajar hal baru, bawa pulang hasil sendiri, dan aromanya bikin rileks.",
       rating: 5
     },
     {
       name: "Maya Putri",
-      role: "Mahasiswa",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100",
-      text: "Sangat puas dengan workshop ini. Selain belajar teknik, juga dapat banyak tips bisnis. Recommended banget!",
+      role: "Entrepreneur",
+      image: "https://res.cloudinary.com/djyboknz6/image/upload/v1752557052/5_lswbuo.png",
+      text: "Saya ikut kelas Ordinary dan Beverage Candle karena ingin menambah produk untuk bisnis hampers saya. Materinya mudah dipahami dan hasilnya langsung bisa saya jual.",
       rating: 5
     },
     {
-      name: "Andi Wijaya",
-      role: "Karyawan Swasta",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100",
-      text: "Workshop yang mengubah hidup saya. Sekarang hobi membuat lilin jadi sumber penghasilan tambahan yang lumayan.",
+      name: "Dewi Ananda",
+      role: "Mahasiswa",
+      image: "https://res.cloudinary.com/djyboknz6/image/upload/v1752557052/7_s1iy0m.png",
+      text: "Botanical Candle Holder yang saya buat di workshop ini jadi inspirasi tugas kuliah saya. Teknik yang diajarkan sangat rapi, dan semua bahan disediakan. Recommended banget",
+      rating: 5
+    },
+    {
+      name: "Sartika indah pertiwi",
+      role: "Ibu rumah tangga",
+      image: "https://res.cloudinary.com/djyboknz6/image/upload/v1752557053/6_rcwqem.png",
+      text: "Sangat puas dengan workshop ini. Selain membuat lilin yang cantik, saya juga mengetahui jenis lilin dan manfaat aromaterapi bagi tubuh.",
       rating: 5
     }
   ];

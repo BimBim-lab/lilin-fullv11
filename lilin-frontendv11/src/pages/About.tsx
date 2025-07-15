@@ -14,8 +14,7 @@ export default function About() {
             Tentang WeisCandle
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Perjalanan kami dalam menciptakan produk aromaterapi berkualitas dan memberdayakan masyarakat 
-            melalui workshop lilin aromaterapi profesional.
+            Perjalanan kami dalam menciptakan produk aromaterapi berkualitas tinggi dan membantu orang lain menemukan ketenangan melalui seni pembuatan lilin.
           </p>
         </div>
 
@@ -25,26 +24,33 @@ export default function About() {
             <h2 className="text-3xl font-display font-bold text-charcoal mb-6">Cerita Kami</h2>
             <div className="space-y-4 text-gray-600">
               <p>
-                WeisCandle didirikan pada tahun 2016 dengan visi untuk memberikan solusi alami bagi mereka 
-                yang mencari ketenangan dan relaksasi dalam kehidupan sehari-hari. Berawal dari hobi pribadi 
-                founder kami, Wulan Sari, yang gemar bereksperimen dengan essential oil dan lilin.
+                WeisCandle.co adalah brand aromaterapi berbasis homemade yang didirikan berdasarkan pengalaman pribadi sang founder, Wenti Hidayah, yang memiliki insomnia dan keresahan selama masa pandemi. 
               </p>
               <p>
-                Apa yang dimulai sebagai kegiatan kreatif di rumah, kini telah berkembang menjadi brand 
-                aromaterapi terpercaya yang telah melayani ribuan pelanggan di seluruh Indonesia. Dengan 
-                pengalaman lebih dari 8 tahun, kami telah melatih ratusan calon entrepreneur di bidang aromaterapi.
+               Berawal dari kecintaannya terhadap eksperimen dengan essential oil dan lilin, ia menemukan bahwa lilin aromaterapi memiliki efek menenangkan yang luar biasa. Dari pengalaman ini, WeisCandle.co lahir dengan tujuan menghadirkan kenyamanan dan ketenangan lewat produk-produk lilin aromaterapi buatan tangan yang berkualitas tinggi.
               </p>
               <p>
-                Setiap produk kami dibuat dengan cinta dan perhatian terhadap detail, menggunakan bahan-bahan 
-                berkualitas tinggi yang aman dan ramah lingkungan. Lokasi workshop kami berada di jantung kota 
-                dengan fasilitas lengkap dan nyaman untuk memberikan pengalaman belajar yang optimal.
+                Sejak tahun 2020, WeisCandle.co telah berkembang menjadi brand terpercaya di bidang aromaterapi, melayani ribuan pelanggan di seluruh Indonesia. Produk yang kami buat meliputi scented candle, wax sachet, wax melt, bath salt, serta craft items seperti tray dan coaster. Kami menggunakan soy wax yang lebih aman dan ramah lingkungan, serta fragrance oil bersertifikasi IFRA, menjadikan produk kami tidak hanya indah namun juga aman digunakan.
               </p>
+              <p>
+                WeisCandle.co juga aktif mengadakan workshop lilin aromaterapi, baik untuk pemula maupun calon entrepreneur. Workshop ini tidak hanya menjadi wadah ekspresi kreativitas, tetapi juga sarana relaksasi dari rutinitas harian.
+              </p>
+              <p>
+                Kami percaya bahwa setiap orang bisa menciptakan produk aromaterapi yang personal dan bermakna, serta mendapatkan manfaat seperti:
+              </p>
+              <ul className="list-disc list-inside space-y-2">
+                <li>Menenangkan pikiran</li>
+                <li>Mengatasi insomnia</li>
+                <li>Mempertahankan konsentrasi</li>
+                <li>Menjadi dekorasi yang indah</li>
+                <li>Mengharumkan ruangan</li>
+              </ul>
             </div>
           </div>
           <div className="animate-fade-in-up">
             <img 
-              src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
-              alt="WeisCandle workshop studio interior" 
+              src="https://res.cloudinary.com/djyboknz6/image/upload/v1752558898/About-Us_km8gpv.webp" 
+              alt="WeisCandle workshop products" 
               className="rounded-2xl shadow-lg w-full hover-scale" 
             />
           </div>
@@ -61,8 +67,7 @@ export default function About() {
             </div>
             <h3 className="text-2xl font-semibold text-charcoal mb-4">Visi Kami</h3>
             <p className="text-gray-600">
-              Menjadi pusat pembelajaran aromaterapi terdepan di Indonesia yang menghasilkan produk berkualitas 
-              tinggi dan menciptakan entrepreneur sukses di bidang aromaterapi dengan standar internasional.
+              Menjadi pusat pembelajaran aromaterapi terdepan di Indonesia yang menghasilkan produk berkualitas tinggi serta menciptakan entrepreneur sukses di bidang lilin aromaterapi yang sesuai standar.
             </p>
           </div>
           <div className="bg-soft-pink bg-opacity-30 p-8 rounded-2xl hover-scale">
@@ -73,8 +78,7 @@ export default function About() {
             </div>
             <h3 className="text-2xl font-semibold text-charcoal mb-4">Misi Kami</h3>
             <p className="text-gray-600">
-              Memberikan edukasi dan pelatihan terbaik dalam pembuatan produk aromaterapi, serta membantu 
-              setiap peserta untuk mengembangkan skill dan bisnis mereka dengan dukungan mentoring berkelanjutan.
+              Memberikan edukasi dan pelatihan terbaik dalam pembuatan produk lilin aromaterapi, serta membantu setiap peserta workshop untuk mengembangkan skill dan menambah pengetahuan tentang lilin aromaterapi dan manfaatnya bagi tubuh.
             </p>
           </div>
         </div>
@@ -92,7 +96,7 @@ export default function About() {
             {/* Founder */}
             <div className="bg-white p-6 rounded-2xl shadow-lg hover-scale">
               <img 
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
+                src="https://res.cloudinary.com/djyboknz6/image/upload/v1752557629/2_yfjymz.png" 
                 alt="Wenti Hidayah - Founder WeisCandle" 
                 className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
               />

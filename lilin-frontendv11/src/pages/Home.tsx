@@ -151,7 +151,7 @@ export default function Home() {
               <h3 className="text-2xl font-semibold text-charcoal mb-6">Instruktur</h3>
               <div className="bg-white p-6 rounded-2xl shadow-lg">
                 <img 
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
+                  src="https://res.cloudinary.com/djyboknz6/image/upload/v1752557629/2_yfjymz.png" 
                   alt="Instructor WeisCandle" 
                   className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" 
                 />

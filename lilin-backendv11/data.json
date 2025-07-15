@@ -180,13 +180,13 @@
     "title1": "Workshop Lilin Aromaterapi oleh",
     "title2": "WeisCandle",
     "description": "Pelajari seni membuat lilin aromaterapi dengan berbagai bentuk lilin yang unik. Kami menggabungkan keindahan visual dengan manfaat relaksasi, menjadikan setiap produk tidak hanya dekoratif, tetapi juga membawa ketenangan bagi tubuh. ",
-    "imageUrl": "/uploads/image-1752545063784-999514663.png",
+    "imageUrl": "http://localhost:5000/uploads/image-1752559678380-243862632.webp",
     "imageAlt": "Aromatherapy candle making workshop setup",
     "showButtons": true,
     "showStats": true,
     "statsNumber": "ratusan",
     "statsLabel": "Peserta Puas",
-    "updatedAt": "2025-07-15T02:04:23.802Z"
+    "updatedAt": "2025-07-15T06:07:58.394Z"
   },
   "contactInfo": {
     "id": 1,

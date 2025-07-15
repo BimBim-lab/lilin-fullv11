@@ -156,11 +156,11 @@ export default function Workshop({
               <h3 className="text-2xl font-semibold text-charcoal mb-6">Instruktur Utama</h3>
               <div className="text-center">
                 <img 
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
-                  alt="Wulan Sari - Instruktur WeisCandle" 
+                  src="https://res.cloudinary.com/djyboknz6/image/upload/v1752557629/2_yfjymz.png" 
+                  alt="Wenti Hidayah - Instruktur WeisCandle" 
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
                 />
-                <h4 className="text-xl font-semibold text-charcoal mb-2">Wenti Syadza</h4>
+                <h4 className="text-xl font-semibold text-charcoal mb-2">Wenti Hidayah</h4>
                 <p className="text-rose-gold font-medium mb-4">Founder WeisCandle & Experienced Aromatherapist</p>
                 
                 <div className="text-left space-y-3 mb-6">
@@ -174,13 +174,13 @@ export default function Workshop({
                     <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <span>ratusan peserta yang telah dilatih</span>
+                    <span>Ratusan peserta yang telah dilatih</span>
                   </div>
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                     </svg>
-                    <span>Author "Panduan Aromaterapi Modern"</span>
+                    <span>Kolaborasi dengan beberapa brand ternama</span>
                   </div>
                 </div>
 
