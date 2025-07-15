@@ -119,7 +119,7 @@ export default function GalleryDashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
+        setFormData(prev => ({ ...prev, imageUrl: data.url }));
         toast({
           title: "Success",
           description: "Gambar berhasil diupload",

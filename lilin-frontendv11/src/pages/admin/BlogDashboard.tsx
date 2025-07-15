@@ -32,6 +32,11 @@ export default function BlogDashboard() {
     featured: false
   });
 
+  // Blog image upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+
   // Load articles on component mount
   useEffect(() => {
     loadArticles();
@@ -91,6 +96,11 @@ export default function BlogDashboard() {
       imageUrl: article.imageUrl,
       featured: article.featured
     });
+    
+    // Clear file upload state when editing existing article
+    setSelectedFile(null);
+    setPreviewUrl("");
+    
     setIsDialogOpen(true);
   };
 
@@ -131,6 +141,25 @@ export default function BlogDashboard() {
         newArticle.slug = generateSlug(newArticle.title);
       }
 
+      // Handle image upload if file is selected
+      let finalImageUrl = newArticle.imageUrl;
+      if (selectedFile) {
+        const uploadedUrl = await uploadFile();
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        } else {
+          // Upload failed, don't proceed
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // Prepare article data with uploaded image URL
+      const articleData = {
+        ...newArticle,
+        imageUrl: finalImageUrl
+      };
+
       let response;
       if (editingArticle) {
         // Update existing article
@@ -140,7 +169,7 @@ export default function BlogDashboard() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           },
-          body: JSON.stringify(newArticle),
+          body: JSON.stringify(articleData),
         });
       } else {
         // Create new article
@@ -150,7 +179,7 @@ export default function BlogDashboard() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
           },
-          body: JSON.stringify(newArticle),
+          body: JSON.stringify(articleData),
         });
       }
 
@@ -172,6 +201,20 @@ export default function BlogDashboard() {
       queryClient.invalidateQueries({ queryKey: [`/api/blog/${savedArticle.slug}`] });
 
       setIsDialogOpen(false);
+      
+      // Reset form and file upload state
+      setNewArticle({
+        title: "",
+        slug: "",
+        excerpt: "",
+        content: "",
+        imageUrl: "",
+        featured: false
+      });
+      setEditingArticle(null);
+      setSelectedFile(null);
+      setPreviewUrl("");
+      
       toast({
         title: "Success",
         description: editingArticle ? "Artikel berhasil diupdate" : "Artikel berhasil ditambahkan",
@@ -218,6 +261,82 @@ export default function BlogDashboard() {
         variant: "destructive"
       });
     }
+  };
+
+  // Blog image upload functions
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "File harus berupa gambar",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "Ukuran file maksimal 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadFile = async (): Promise<string | null> => {
+    if (!selectedFile) return null;
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: `Gagal mengupload gambar: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const clearSelectedFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setNewArticle({...newArticle, imageUrl: ""});
   };
 
   const handlePreview = (slug: string) => {
@@ -311,25 +430,41 @@ export default function BlogDashboard() {
                 />
               </div>
               <div>
-                <Label htmlFor="imageUrl">URL Gambar</Label>
-                <Input
-                  id="imageUrl"
-                  value={newArticle.imageUrl}
-                  onChange={(e) => setNewArticle({...newArticle, imageUrl: e.target.value})}
-                  placeholder="https://example.com/image.jpg"
-                />
-                {newArticle.imageUrl && (
-                  <div className="mt-2">
-                    <img 
-                      src={newArticle.imageUrl} 
-                      alt="Preview" 
-                      className="w-32 h-24 object-cover rounded border"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
+                <Label htmlFor="imageFile">Gambar Artikel</Label>
+                <div className="space-y-2">
+                  <Input
+                    id="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                  />
+                  {selectedFile && (
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm text-gray-600">{selectedFile.name}</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearSelectedFile}
+                      >
+                        Hapus
+                      </Button>
+                    </div>
+                  )}
+                  {(previewUrl || newArticle.imageUrl) && (
+                    <div className="mt-2">
+                      <img 
+                        src={previewUrl || newArticle.imageUrl} 
+                        alt="Preview" 
+                        className="w-32 h-24 object-cover rounded border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <Label htmlFor="content">Konten Artikel *</Label>
@@ -357,11 +492,11 @@ export default function BlogDashboard() {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Batal
                 </Button>
-                <Button onClick={handleSaveArticle} disabled={isSaving}>
-                  {isSaving ? (
+                <Button onClick={handleSaveArticle} disabled={isSaving || uploadingImage}>
+                  {(isSaving || uploadingImage) ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Menyimpan...
+                      {uploadingImage ? 'Mengupload...' : 'Menyimpan...'}
                     </>
                   ) : (
                     <>

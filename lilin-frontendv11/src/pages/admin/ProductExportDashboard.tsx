@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit3, Trash2, Package, Save, Loader2, Eye } from "lucide-react";
+import { Plus, Edit3, Trash2, Package, Save, Loader2, Eye, Upload, Image, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { type Product, type InsertProduct } from "@/shared/schema";
@@ -43,6 +43,11 @@ export default function ProductExportDashboard() {
     description: "",
     moq: ""
   });
+
+  // Image upload states
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   // Load products on component mount
   useEffect(() => {
@@ -85,6 +90,84 @@ export default function ProductExportDashboard() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Image upload functions
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Hanya file gambar yang diperbolehkan (PNG, JPG, WEBP, dll.)",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Error", 
+          description: "Ukuran file terlalu besar. Maksimal 10MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      toast({
+        title: "File Selected",
+        description: `${file.name} siap untuk diupload.`,
+      });
+    }
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    setIsUploading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Upload failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const clearSelectedFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    const fileInput = document.getElementById('product-image-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   };
 
@@ -156,18 +239,42 @@ export default function ProductExportDashboard() {
       description: "",
       moq: ""
     });
+    setSelectedFile(null);
+    setFilePreview(null);
     setIsDialogOpen(true);
   };
 
   const handleSaveProduct = async () => {
+    setIsSaving(true);
     try {
+      let dataToSave = { ...newProduct };
+
+      // If there's a selected file, upload it first
+      if (selectedFile) {
+        try {
+          const uploadedUrl = await uploadFile(selectedFile);
+          dataToSave.imageUrl = uploadedUrl;
+          toast({
+            title: "Success",
+            description: "File berhasil diupload!",
+          });
+        } catch (uploadError) {
+          toast({
+            title: "Upload Error",
+            description: `Gagal mengupload file: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`,
+            variant: "destructive"
+          });
+          // Continue with save even if upload fails
+        }
+      }
+
       let updatedProducts;
       
       if (editingProduct) {
         // Update existing product
         updatedProducts = products.map(p => 
           p.id === editingProduct.id 
-            ? { ...p, ...newProduct, updatedAt: new Date().toISOString() }
+            ? { ...p, ...dataToSave, updatedAt: new Date().toISOString() }
             : p
         );
       } else {
@@ -175,7 +282,7 @@ export default function ProductExportDashboard() {
         const newId = Math.max(...products.map(p => p.id), 0) + 1;
         updatedProducts = [...products, {
           id: newId,
-          ...newProduct,
+          ...dataToSave,
           updatedAt: new Date().toISOString()
         }];
       }
@@ -183,6 +290,14 @@ export default function ProductExportDashboard() {
       // Update local state
       setProducts(updatedProducts);
       setIsDialogOpen(false);
+      setSelectedFile(null);
+      setFilePreview(null);
+
+      // Clear file input
+      const fileInput = document.getElementById('product-image-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
 
       // Immediately sync to backend
       const response = await fetch(`${API_BASE_URL}/api/products`, {
@@ -215,6 +330,8 @@ export default function ProductExportDashboard() {
         description: `Gagal menyimpan produk: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -524,13 +641,94 @@ export default function ProductExportDashboard() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="imageUrl">URL Gambar</Label>
-                  <Input
-                    id="imageUrl"
-                    value={newProduct.imageUrl}
-                    onChange={(e) => setNewProduct({...newProduct, imageUrl: e.target.value})}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <Label>Gambar Produk</Label>
+                  {/* Image URL Input */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="imageUrl">Image URL (opsional)</Label>
+                      <Input
+                        id="imageUrl"
+                        value={newProduct.imageUrl}
+                        onChange={(e) => setNewProduct({...newProduct, imageUrl: e.target.value})}
+                        placeholder="https://example.com/image.jpg atau upload file di bawah"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Masukkan URL gambar dari internet, atau upload file di bawah
+                      </p>
+                    </div>
+
+                    {/* File Upload Area */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      {selectedFile && filePreview ? (
+                        <div className="space-y-3">
+                          <div className="relative inline-block">
+                            <img 
+                              src={filePreview} 
+                              alt="Preview"
+                              className="w-32 h-32 object-cover rounded mx-auto"
+                            />
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                              onClick={clearSelectedFile}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                            <Image className="w-8 h-8 text-green-600" />
+                          </div>
+                          <p className="text-sm text-green-600 font-medium">{selectedFile.name}</p>
+                          <p className="text-xs text-gray-500">File siap untuk disimpan</p>
+                        </div>
+                      ) : newProduct.imageUrl ? (
+                        <div className="space-y-2">
+                          <img 
+                            src={newProduct.imageUrl} 
+                            alt="Product"
+                            className="w-32 h-32 object-cover rounded mx-auto"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300";
+                            }}
+                          />
+                          <p className="text-xs text-gray-500">Gambar saat ini</p>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-sm text-gray-600 mb-2">Upload gambar produk atau drag & drop</p>
+                          <p className="text-xs text-gray-500">PNG, JPG, WEBP, AVIF hingga 10MB</p>
+                        </>
+                      )}
+                      <div className="mt-4">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          id="product-image-upload"
+                        />
+                        <Button 
+                          variant="outline" 
+                          onClick={() => document.getElementById('product-image-upload')?.click()}
+                          disabled={isUploading}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Pilih File
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="description">Deskripsi</Label>
@@ -546,8 +744,15 @@ export default function ProductExportDashboard() {
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Batal
                   </Button>
-                  <Button onClick={handleSaveProduct}>
-                    {editingProduct ? 'Update' : 'Tambah'}
+                  <Button onClick={handleSaveProduct} disabled={isSaving || isUploading}>
+                    {isSaving || isUploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {isUploading ? 'Mengupload...' : 'Menyimpan...'}
+                      </>
+                    ) : (
+                      editingProduct ? 'Update' : 'Tambah'
+                    )}
                   </Button>
                 </div>
               </div>

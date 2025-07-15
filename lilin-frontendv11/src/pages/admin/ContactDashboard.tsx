@@ -329,7 +329,7 @@ export default function ContactDashboard() {
               <CardTitle>Preview Peta</CardTitle>
             </CardHeader>
             <CardContent>
-              {contactInfo.mapEmbed && contactInfo.mapEmbed.includes('maps/embed') ? (
+              {contactInfo.mapEmbed && (contactInfo.mapEmbed.includes('maps/embed') || contactInfo.mapEmbed.includes('google.com/maps')) ? (
                 <iframe 
                   src={contactInfo.mapEmbed} 
                   width="100%" 
@@ -339,6 +339,9 @@ export default function ContactDashboard() {
                   loading="lazy" 
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Lokasi WeisCandle Workshop"
+                  onError={(e) => {
+                    console.error('Error loading Google Maps iframe:', e);
+                  }}
                 />
               ) : (
                 <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
@@ -346,7 +349,7 @@ export default function ContactDashboard() {
                     <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">Map Preview</p>
                     <p className="text-xs text-gray-400">
-                      {contactInfo.mapEmbed ? "URL tidak valid" : "Masukkan Google Maps embed URL"}
+                      {contactInfo.mapEmbed ? "URL tidak valid - pastikan menggunakan URL embed dari Google Maps" : "Masukkan Google Maps embed URL"}
                     </p>
                   </div>
                 </div>
