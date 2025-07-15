@@ -22,8 +22,7 @@ import type {
   WorkshopPackage,
   Product,
   Gallery,
-  Contact,
-  HeroData as SchemaHeroData
+  Contact
 } from "./schema";
 
 // Database connection
