@@ -26,8 +26,15 @@ import type {
 } from "./schema";
 
 // Database connection
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL is not set!');
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+console.log('🔗 Connecting to database...');
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
+console.log('✅ Database connection established');
 
 interface HeroData {
   title1: string;

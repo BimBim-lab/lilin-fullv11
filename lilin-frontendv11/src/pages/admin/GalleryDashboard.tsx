@@ -185,8 +185,10 @@ export default function GalleryDashboard() {
         await loadGallery();
         
         // Invalidate gallery queries to update frontend immediately
-        queryClient.invalidateQueries({ queryKey: ['gallery'] });
-        queryClient.invalidateQueries({ queryKey: ['galleryHighlighted'] });
+        await queryClient.invalidateQueries({ queryKey: ['gallery'] });
+        await queryClient.invalidateQueries({ queryKey: ['galleryHighlighted'] });
+        await queryClient.refetchQueries({ queryKey: ['gallery'] });
+        await queryClient.refetchQueries({ queryKey: ['galleryHighlighted'] });
         
         resetForm();
       } else if (response.status === 401) {

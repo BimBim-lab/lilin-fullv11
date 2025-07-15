@@ -189,8 +189,12 @@ export default function HeroDashboard() {
       setSelectedFile(null);
       setFilePreview(null);
       
-      // Invalidate and refetch hero data on homepage
-      queryClient.invalidateQueries({ queryKey: ['heroData'] });
+      // Invalidate and refetch hero data on homepage - more aggressive
+      await queryClient.invalidateQueries({ queryKey: ['heroData'] });
+      await queryClient.refetchQueries({ queryKey: ['heroData'] });
+      
+      // Also invalidate all queries to ensure fresh data
+      queryClient.invalidateQueries();
       
       // Clear file input
       const fileInput = document.getElementById('hero-image-upload') as HTMLInputElement;

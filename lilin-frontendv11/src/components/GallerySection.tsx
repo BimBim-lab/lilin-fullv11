@@ -70,8 +70,10 @@ export default function GallerySection({
       return response.json();
     },
     retry: 1,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 30 * 1000, // 30 seconds - shorter for faster updates
     refetchOnWindowFocus: true,
+    refetchOnMount: true, // Always refetch on component mount
+    refetchInterval: 60 * 1000, // Auto-refetch every minute when page is active
   });
 
   // Use fetched data or fallback to static data  

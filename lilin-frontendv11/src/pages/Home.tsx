@@ -35,8 +35,10 @@ export default function Home() {
       return response.json();
     },
     retry: 1,
-    staleTime: 2 * 60 * 1000, // 2 minutes - shorter for admin updates
+    staleTime: 30 * 1000, // 30 seconds - shorter for faster updates
     refetchOnWindowFocus: true, // Refetch when window gets focus
+    refetchOnMount: true, // Always refetch on component mount
+    refetchInterval: 60 * 1000, // Auto-refetch every minute when page is active
   });
 
   // Default hero data fallback

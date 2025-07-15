@@ -421,11 +421,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // File upload endpoint
+  // File upload endpoint with cloud storage support
   app.post("/api/upload", authMiddleware, (req: any, res) => {
     const upload = req.app.locals.upload;
     
-    upload.single('image')(req, res, (err: any) => {
+    upload.single('image')(req, res, async (err: any) => {
       if (err) {
         console.error('Upload error:', err);
         return res.status(400).json({ 
@@ -440,16 +440,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Return the URL where the file can be accessed
-      const fileUrl = `/uploads/${req.file.filename}`;
-      console.log('File uploaded successfully:', fileUrl);
-      
-      res.json({ 
-        url: fileUrl,
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        size: req.file.size
-      });
+      try {
+        // Check if we're in production and have cloud storage configured
+        const isProduction = process.env.NODE_ENV === 'production';
+        const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+        
+        let fileUrl: string;
+        
+        if (isProduction && hasCloudinary) {
+          // Use Cloudinary in production
+          const cloudinary = require('cloudinary').v2;
+          
+          cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+          });
+          
+          // Upload to Cloudinary
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'weiscandle',
+            resource_type: 'auto',
+            quality: 'auto:good',
+            format: 'auto'
+          });
+          
+          fileUrl = result.secure_url;
+          console.log('File uploaded to Cloudinary:', fileUrl);
+          
+          // Clean up local file
+          const fs = require('fs');
+          fs.unlinkSync(req.file.path);
+        } else {
+          // Use local storage for development or when cloud storage is not configured
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+          const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+          const baseUrl = `${protocol}://${host}`;
+          
+          fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+          console.log('File uploaded locally:', fileUrl);
+        }
+        
+        console.log('Protocol:', req.headers['x-forwarded-proto'] || req.protocol);
+        console.log('Host:', req.headers['x-forwarded-host'] || req.headers.host);
+        console.log('Final URL:', fileUrl);
+        
+        res.json({ 
+          url: fileUrl,
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          size: req.file.size
+        });
+      } catch (cloudError) {
+        console.error('Cloud upload error:', cloudError);
+        
+        // Fallback to local storage if cloud upload fails
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+        const baseUrl = `${protocol}://${host}`;
+        
+        const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+        console.log('Cloud upload failed, using local storage:', fileUrl);
+        
+        res.json({ 
+          url: fileUrl,
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          size: req.file.size
+        });
+      }
     });
   });
 

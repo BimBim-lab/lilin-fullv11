@@ -197,8 +197,9 @@ export default function BlogDashboard() {
       }
 
       // Invalidate React Query cache to update all components
-      queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/blog/${savedArticle.slug}`] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/blog"] });
+      await queryClient.invalidateQueries({ queryKey: [`/api/blog/${savedArticle.slug}`] });
+      await queryClient.refetchQueries({ queryKey: ["/api/blog"] });
 
       setIsDialogOpen(false);
       
