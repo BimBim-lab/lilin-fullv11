@@ -88,61 +88,22 @@ export default function About() {
             Instruktur berpengalaman yang siap membimbing perjalanan aromaterapi Anda
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-8">
             {/* Founder */}
             <div className="bg-white p-6 rounded-2xl shadow-lg hover-scale">
               <img 
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
-                alt="Wulan Sari - Founder WeisCandle" 
+                alt="Wenti Hidayah - Founder WeisCandle" 
                 className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
               />
-              <h4 className="text-xl font-semibold text-charcoal mb-2">Wulan Sari</h4>
+              <h4 className="text-xl font-semibold text-charcoal mb-2">Wenti Hidayah</h4>
               <p className="text-rose-gold font-medium mb-3">Founder & Head Instructor</p>
               <p className="text-gray-600 text-sm mb-4">
-                Certified Aromatherapist dengan pengalaman 8+ tahun. Telah melatih 500+ peserta dan membantu 
-                puluhan entrepreneur sukses memulai bisnis aromaterapi.
+                Aromatherapist dengan pengalaman 5+ tahun. Telah melatih ratusan peserta dalam pembutan llin aromaterapi.
               </p>
               <div className="flex justify-center space-x-2">
                 <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Aromatherapist</span>
                 <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Business Mentor</span>
-              </div>
-            </div>
-
-            {/* Assistant Instructor */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg hover-scale">
-              <img 
-                src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
-                alt="Sarah Chen - Assistant Instructor" 
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
-              />
-              <h4 className="text-xl font-semibold text-charcoal mb-2">Sarah Chen</h4>
-              <p className="text-rose-gold font-medium mb-3">Assistant Instructor</p>
-              <p className="text-gray-600 text-sm mb-4">
-                Spesialis essential oil blending dengan background chemistry. Membantu peserta memahami 
-                formulasi dan kombinasi aroma yang sempurna.
-              </p>
-              <div className="flex justify-center space-x-2">
-                <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Chemistry</span>
-                <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Oil Blending</span>
-              </div>
-            </div>
-
-            {/* Business Consultant */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg hover-scale">
-              <img 
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" 
-                alt="Andi Wijaya - Business Consultant" 
-                className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
-              />
-              <h4 className="text-xl font-semibold text-charcoal mb-2">Andi Wijaya</h4>
-              <p className="text-rose-gold font-medium mb-3">Business Consultant</p>
-              <p className="text-gray-600 text-sm mb-4">
-                Expert dalam business development dan marketing strategy. Membantu peserta Workshop Pro 
-                mengembangkan rencana bisnis yang menguntungkan.
-              </p>
-              <div className="flex justify-center space-x-2">
-                <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Business Dev</span>
-                <span className="bg-soft-pink text-charcoal px-2 py-1 rounded text-xs">Marketing</span>
               </div>
             </div>
           </div>

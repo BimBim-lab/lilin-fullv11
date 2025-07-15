@@ -160,27 +160,21 @@ export default function Workshop({
                   alt="Wulan Sari - Instruktur WeisCandle" 
                   className="w-32 h-32 rounded-full mx-auto mb-4 object-cover" 
                 />
-                <h4 className="text-xl font-semibold text-charcoal mb-2">Wulan Sari</h4>
-                <p className="text-rose-gold font-medium mb-4">Founder WeisCandle & Certified Aromatherapist</p>
+                <h4 className="text-xl font-semibold text-charcoal mb-2">Wenti Syadza</h4>
+                <p className="text-rose-gold font-medium mb-4">Founder WeisCandle & Experienced Aromatherapist</p>
                 
                 <div className="text-left space-y-3 mb-6">
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span>8+ tahun pengalaman aromaterapi</span>
+                    <span>5+ tahun pengalaman aromaterapi</span>
                   </div>
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <span>500+ peserta yang telah dilatih</span>
-                  </div>
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span>Sertifikasi internasional IFPA</span>
+                    <span>ratusan peserta yang telah dilatih</span>
                   </div>
                   <div className="flex items-center">
                     <svg className="w-5 h-5 text-rose-gold mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -193,7 +187,6 @@ export default function Workshop({
                 <div className="flex flex-wrap justify-center gap-2">
                   <span className="bg-soft-pink text-charcoal px-3 py-1 rounded-full text-sm">Aromatherapist</span>
                   <span className="bg-soft-pink text-charcoal px-3 py-1 rounded-full text-sm">Business Mentor</span>
-                  <span className="bg-soft-pink text-charcoal px-3 py-1 rounded-full text-sm">IFPA Certified</span>
                 </div>
               </div>
             </div>
@@ -203,14 +196,12 @@ export default function Workshop({
               <h3 className="text-2xl font-semibold text-charcoal mb-6">Fasilitas Workshop</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { icon: "🏢", text: "Studio ber-AC dengan lighting optimal" },
                   { icon: "🧪", text: "Peralatan lengkap dan steril" },
-                  { icon: "🍪", text: "Snack dan minuman sehat" },
+                  { icon: "🍪", text: "Snack dan minuman" },
                   { icon: "📸", text: "Dokumentasi kegiatan gratis" },
                   { icon: "📋", text: "Handout dan worksheet" },
                   { icon: "🎁", text: "Goodie bag eksklusif" },
-                  { icon: "🚗", text: "Area parkir luas" },
-                  { icon: "📶", text: "WiFi berkecepatan tinggi" }
+                  { icon: "💬", text: "Konsultasi langsung dengan instruktur" },
                 ].map((facility, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <span className="text-xl">{facility.icon}</span>

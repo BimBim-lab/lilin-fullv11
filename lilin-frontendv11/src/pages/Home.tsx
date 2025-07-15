@@ -156,14 +156,14 @@ export default function Home() {
                   className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" 
                 />
                 <div className="text-center">
-                  <h4 className="text-xl font-semibold text-charcoal mb-2">Wulan Sari</h4>
+                  <h4 className="text-xl font-semibold text-charcoal mb-2">Wenti Hidayah</h4>
                   <p className="text-rose-gold font-medium mb-3">Founder WeisCandle</p>
                   <p className="text-gray-600 mb-4">
-                    Berpengalaman 8 tahun di industri aromaterapi dan telah melatih lebih dari 500 orang.
+                    Berpengalaman 5 tahun di industri aromaterapi dan telah melatih ratusan orang.
                   </p>
                   <div className="flex justify-center space-x-2">
                     <span className="bg-soft-pink text-charcoal px-3 py-1 rounded-full text-sm">
-                      Certified Aromatherapist
+                      Experienced Aromatherapist
                     </span>
                     <span className="bg-soft-pink text-charcoal px-3 py-1 rounded-full text-sm">
                       Business Mentor
